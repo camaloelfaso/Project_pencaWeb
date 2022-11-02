@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{%load static%}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http="equiv="X-UA-Compatible" content="IE=edge">
+        <title>TO DO LIST</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="widht-device-with, initial-scale-=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200&family=Nunito:ital,wght@1,200&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}" />
+        <style>
+            .container-header{
+                                max-width: 550px;
+                                margin: auto;
+                                background-image: url("{% static 'images/pelotamultinacion.jpeg' %}");
+
+                                background-repeat: no-repeat;
+                                background-size: contain;
+                                -webkit-box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+                                box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+                            }
+        </style>
+    </head>
+    <body>
+        <div class="container-header">
+            <div class="header-bar-mundial">
+                <div><h4>Hola, {{request.user|title}}</h4></div>
+                
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'logout'%}" style="color:#fff;">Logout</a>
+                {% else %}
+                
+                <a href="{% url 'login'%}" style="color:#fff;">login</a>
+                {% endif %} 
+                
+            </div>
+            {% block contentHeader %}
+
+            {% endblock contentHeader %}
+
+            <div class="header-bar-mundial" style="padding: 0px;">
+                
+                <div id="header_links">
+                    <nav> <!-- Aqui estamos iniciando la nueva etiqueta nav -->
+                        <ul class="nav">
+                            <li>
+                                <a href="{% url 'home'%}">Inicio</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'torneos' %}">Torneos</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'equipos' %}">Equipos</a>
+                            </li>
+                        </ul>
+                    </nav><!-- Aqui estamos cerrando la nueva etiqueta nav -->
+                </div>
+            </div>
+            
+            {% block content %}
+
+            {% endblock content %}
+        </div>
+        
+    </body>
+</html>

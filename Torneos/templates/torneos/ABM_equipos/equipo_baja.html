@@ -1,0 +1,21 @@
+{% extends 'torneos/main.html' %}
+
+{% block contentHeader %}
+
+<div class="header-bar">
+    <a href="{% url 'equipos' %}">&#8592;Volver</a>
+
+</div>
+
+
+{% endblock contentHeader %}
+{% block content %}
+<div class="card_body" style="padding: 60px;">
+    <form method="Post">
+        {% csrf_token %}
+        <p>Seguro quieres borrar este equipo {{equipo}}</p>
+        <input class="button" type="submit" value="Eliminar"/>
+    </form>
+</div>
+
+{% endblock content %}

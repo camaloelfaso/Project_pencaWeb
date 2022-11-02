@@ -1,0 +1,21 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+
+<div class="header-bar">
+    <a href="{% url 'torneo_home' partido.torneo.id%}">&#8592;Volver</a>
+
+</div>
+
+<div class="card_body">
+    <div class="tareas_conjunto_items" style="padding: 20px;">
+
+    </div>
+    <form method="Post">
+        {% csrf_token %}
+        <p>Seguro quieres borrar este partido {{partido}}</p>
+        <input class="button" type="submit" value="Eliminar"/>
+    </form>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,40 @@
+from django.urls import path
+from .views import * # AltaEquipo, CustomLoginView, AltaUsuario, ListaEquipos, UpdEquipo, DltEquipo, AltaClasificado, DltClasificado, UpdClasificado, ListaClasificado, HomeView, AltaTorneo, UpdTorneo, DltTorneo, ListaTorneo, TorneoDetalle
+from .forms import *
+from django.contrib.auth.views import LogoutView
+from django.conf.urls.static import static
+from django.conf import settings
+
+urlpatterns = [
+    path('', HomeView, name='home'),
+    
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),    
+    path('register/', AltaUsuario.as_view(), name='alta_usuario'),   
+
+    path('equipo/', ListaEquipos.as_view(), name='equipos'),
+    path('equipo-alta/', AltaEquipo.as_view(), name="equipo_alta"),
+    path('equipo-upd/<int:pk>', UpdEquipo.as_view(), name="equipo_upd"),
+    path('equipo-dlt/<int:pk>', DltEquipo.as_view(), name="equipo_dlt"),
+    
+    path('<int:torneo_id>/clasificado/', ListaClasificado.as_view(), name='clasificados'),
+    path('<int:torneo_id>/clasificado/nuevo/', AltaClasificado.as_view(), name="clasificado_alta"),
+    path('<int:torneo_id>/clasificado/upd/<int:pk>/', UpdClasificado.as_view(), name="clasificado_upd"),
+    path('<int:torneo_id>/clasificado/delete/<int:pk>/', DltClasificado.as_view(), name="clasificado_dlt"),
+
+    path('<int:torneo_id>/partido/', ListaPartido.as_view(), name='partidos'),
+    path('<int:torneo_id>/partido/nuevo/', AltaPartido.as_view(), name="partido_alta"),
+    path('<int:torneo_id>/partido/upd/<int:pk>', UpdPartido.as_view(), name="partido_upd"),
+    path('<int:torneo_id>/partido/delete/<int:pk>', DltPartido.as_view(), name="partido_dlt"),    
+
+    path('torneo/', ListaTorneo.as_view(), name='torneos'),
+    path('torneo/nuevo', AltaTorneo_view, name="torneo_alta"),
+    path('torneo/upd/<int:pk>', UpdTorneo.as_view(), name="torneo_upd"),
+    path('torneo/<int:pk>/home', TorneoDetalle.as_view(), name='torneo_home'),
+    path('torneo/delete/<int:pk>', DltTorneo.as_view(), name="torneo_dlt"),
+
+    path('torneo/<int:pk>/fixture/', crea_Fixture.as_view(), name="genera_fixture"),
+
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

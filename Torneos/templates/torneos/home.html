@@ -1,0 +1,40 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+
+    <div class="tareas_conjunto_items">
+        <div class="tarea_item">
+            <h2>Lista Torneos algo</h2>
+            <a id="add_link" href="{% url 'torneo_alta'%}">&#x2b;</a>
+        </div>
+        {% for torneo in torneos %}
+        <div class="tarea_item">
+            <div class="tarea_titulo">
+                <div class="tarea_completa_icono"></div>
+                <a href="{% url 'torneo_home' torneo.id%}">{{torneo}}</a>
+            </div>
+            <a class="link_delete" href="{% url 'torneo_dlt' torneo.id%}">&#215</a>              
+        </div>        
+        {% endfor %}   
+    </div>
+
+
+
+    <div class="tareas_conjunto_items">
+        <div class="tarea_item">
+            <h2>Lista partidos</h2>
+        </div>
+        {% for partido in partidos %}
+        <div class="tarea_item">
+            <div class="tarea_titulo">
+                <div class="tarea_completa_icono"></div>
+                <a href="{% url 'partido_upd' partido.torneo.id partido.id%}">{{partido.fecha}}| {{partido.torneo.nombre}} - {{partido}}</a>
+            </div>
+            <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id%}">&#215</a>              
+        </div>        
+        {% endfor %}   
+    </div>
+
+    
+{% endblock content %}
+

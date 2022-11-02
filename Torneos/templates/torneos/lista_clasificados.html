@@ -1,0 +1,34 @@
+{% extends 'torneos/main.html' %}
+
+{% block contentHeader %}
+    <div class="header-bar">
+        <div>
+            <h3>Clasificados</h3>
+        </div>
+    </div>
+{% endblock contentHeader %}
+
+{% block content %}
+
+    <div id="buscador_alta">
+        <form method="GET" style="margin-top: 20px;display: flex;">
+            <input type="text" name="objeto_buscado" value="{{search_input}}">
+            <input class="button" type="submit" value="Buscar">
+        </form>
+        <a id="add_link" href="{% url 'clasificado_alta' torneo%}"><h5 style="color:black;">Agregar clasificado</h5></a>
+       
+    </div>
+
+    <div class="tareas_conjunto_items">
+        {% for clasificado in participantes %}
+        <div class="tarea_item">
+            <div class="tarea_titulo">
+                <div class="tarea_completa_icono"></div>
+                <a href="{% url 'clasificado_upd' clasificado.torneo.id clasificado.id%}">{{clasificado}}</a>
+            </div>
+            <a class="link_delete" href="{% url 'clasificado_dlt' clasificado.torneo.id clasificado.id%}">&#215</a>              
+        </div>        
+        {% endfor %}   
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,31 @@
+{% extends 'torneos/main.html' %}
+{%load static%}
+{% block content %}
+    <div class="header-bar-mundial">
+        <div>
+
+            <h3>Equipos</h3>
+        </div>
+    </div>
+
+    <div id="buscador_alta">
+        <form method="GET" style="margin-top: 20px;display: flex;">
+            <input type="text" name="objeto_buscado" value="{{search_input}}">
+            <input class="button" type="submit" value="Buscar">
+        </form>
+        <a id="add_link" href="{% url 'equipo_alta'%}">&#x2b;</a>
+    </div>
+
+    <div class="tareas_conjunto_items">
+        {% for equipo in equipos %}
+        <div class="tarea_item">
+            <div class="tarea_titulo">
+                <div class="bandera_icono"><img src="{{equipo.bandera.url}}" style="width:30px;height:30px;"></div>
+                <a href="{% url 'equipo_upd' equipo.id%}">{{equipo}}</a>
+            </div>
+            <a class="link_delete" href="{% url 'equipo_dlt' equipo.id%}">&#215</a>              
+        </div>        
+        {% endfor %}   
+    </div>
+
+{% endblock content %}

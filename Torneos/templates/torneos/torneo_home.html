@@ -1,0 +1,124 @@
+{% extends 'torneos/main.html' %}
+
+{% block contentHeader %}
+    <div class="header-bar">
+        <div id="header_links">
+            <a id="add_link" href="{% url 'torneo_upd' torneo.id %}" style="color:#fefefe;"><h3>{{torneo.nombre.upper}}</h3> </a>
+        </div>
+    </div>
+{% endblock contentHeader %}
+
+{% block content %} 
+
+    <div class="tareas_conjunto_items"> 
+        {{torneo.fase}} 
+        {% if equipos_grupo %}
+            {% if torneo.fase == "Grupos" or torneo.fase == "Pendiente" %} 
+                <div class="tareas_conjunto_items">     
+                    {% for grupo in equipos_grupo %}  
+                        <div class="tareas_conjunto_items">      
+                            {%for clasificado in grupo%}
+                                {% if forloop.first %}
+                                    <div class="tarea_item">
+                                        <div class="tarea_titulo">                                            
+                                            <h2>Grupo {{clasificado}}  </h2>
+                                            <p>
+                                                <h6>    Pts  |  PJ  |  PG  |  PE  |  PP  |  GF  |  GC  |  GD</h6>
+                                            </p>        
+                                        </div>
+                                    </div>        
+                                {%else%}    
+                                    <div class="tarea_item">
+                                        <div class="tarea_titulo">
+                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;"></div>                                            
+                                            <p  >
+                                                {{clasificado.equipo.nombre}}
+                                                {{clasificado.puntos}}  |  {{clasificado.jugados}}  |  {{clasificado.ganados}}  |  {{clasificado.empatados}}  |  
+                                                {{clasificado.perdidos}}  |  {{clasificado.goles_F}}  |  {{clasificado.goles_C}}  |  {{clasificado.goles_D}}   
+                                            </p>        
+                                        </div>                       
+                                    </div>         
+                                {%endif%}
+                            {% endfor %}   
+                        </div>
+                    {% endfor %}  
+                </div>
+            {% endif %}
+        {%else%}
+            <div id="buscador_alta">         
+                <a id="add_link" href="{% url 'clasificados' torneo.id %}"><h2 style="color:black">Grupos</h2></a>            
+             </div>                
+        {% endif %}
+        {% if partidos %}
+            {% if torneo.fase == "Pendiente" %}
+                <div id="buscador_alta">
+                    <h2>Partidos</h2>   
+                    <a id="add_link" href="{% url 'partido_alta' torneo.id %}">&#x2b;</a>     
+                </div>
+            {% else %}
+                <div id="buscador_alta">
+                    <h2>Partidos</h2>   
+                </div>
+            {% endif %}
+            
+            <div class="tareas_conjunto_items">
+                {% for fase in fixture %} 
+                    {% for partido in fase %}    
+                        {% if forloop.first %}
+                            {% if partido == "0" %}
+                                <h2>FINAL </h2>
+                            {%elif partido == "1"%}
+                                <h2>3er y 4to </h2>
+                            {%elif partido == "2"%}
+                                <h2>SEMIFINAL </h2>
+                            {%elif partido == "4"%}
+                                <h2>CUARTOS DE FINAL </h2>
+                            {%elif partido == "8"%}
+                                <h2>OCTAVOS DE FINAL </h2>                                    
+                            {%else%}    
+                                <h2>Grupo {{partido}} </h2>
+                            {% endif %}
+
+                        {%else%}    
+                            <div class="tareas_conjunto_items"> 
+                                <div class="tarea_item">
+                                    <div class="tarea_titulo">
+                                        {%if partido.fecha%}
+                                            {{partido.fecha}}
+                                        {%else%}
+                                            Fijar fecha
+                                        {%endif%}
+                                        {% if partido.local and partido.visitante %}
+                                            <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} ({{partido.score_local}}) VS ({{partido.score_visitante}}) {{partido.visitante.nombre}} </a>
+                                            <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                        {% elif partido.local and not partido.visitante %}
+                                            <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} VS {{partido.codigo}} </a>
+                                        {% elif not partido.local and partido.visitante %}
+                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">{{partido.codigo}} VS {{partido.visitante.nombre}}</a>
+                                            <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                        {% else %}
+                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
+                                        {% endif %}
+                                    </div>
+                                    <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id %}">&#215</a>              
+                                </div>                    
+                            </div>
+                        {%endif%}
+                    {%endfor%}        
+                {% endfor %}       
+            </div>  
+        {% else %}
+            <div id="buscador_alta">
+                 
+                <a id="add_link" href="{% url 'partidos' torneo.id %}"><h2 style="color:black">Partidos</h2>  </a>     
+            </div>
+        {% endif %}
+    </div>
+
+      
+
+
+{% endblock content %}
+

@@ -1,0 +1,27 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+<div class="header-bar">
+    <h1>Registro de usuario</h1>
+</div>
+
+<div class="card_body">
+    <form method="POST">
+        {% csrf_token %}
+        <label>{{form.username.label}}</label>
+        {{form.username}}
+        <label>{{form.password1.label}}</label>
+        {{form.password1}}
+        <label>{{form.password2.label}}</label>
+        {{form.password2}}
+        <input style="margin-top: 10px;" class="button" type="submit" value="Crear">
+    </form>
+    
+    <p>Ya tenes usuario registrado? <a href="{% url 'login'%}">Login</a></p>
+</div>
+
+
+
+
+
+{% endblock content %}

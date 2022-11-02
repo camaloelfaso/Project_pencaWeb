@@ -1,0 +1,25 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+
+<div class="header-bar">
+    <a href="{% url 'partidos' torneoID %}">&#8592;Volver</a>
+
+</div>
+
+<div class="card_body">
+    <div class="tareas_conjunto_items" style="padding: 20px;">
+
+    </div>
+    <form method="GET">
+        {% csrf_token %}
+        <p>Seguro quieres generar automaticamente el fixture? 
+            Se eliminara todos los partidos generados previamente.
+
+        </p>
+
+        <input class="button" type="submit" value="Crear fixture"/>
+    </form>
+</div>
+
+{% endblock content %}
