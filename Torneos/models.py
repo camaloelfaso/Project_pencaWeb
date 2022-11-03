@@ -1,4 +1,4 @@
-
+from django.contrib.auth.models import User
 from email.policy import default
 from threading import activeCount
 from tkinter import Widget
@@ -46,7 +46,6 @@ TPO_GRUPO = [
     (IDA_VUELTA, 'Ida y Vuelta'),    
 ]
 
-
 class Equipo(models.Model):
     nombre       = models.CharField(max_length=50)
     ranking_fifa = models.IntegerField(default=0)
@@ -67,6 +66,7 @@ class Torneo(models.Model):
     grupos_mod       = models.CharField(max_length=2, choices=TPO_GRUPO, default=IDA)
     clasificanXgrupo = models.IntegerField(default=2)
     equipos          = models.ManyToManyField(Equipo,through='Clasificado')
+    torneoPadre      = models.ForeignKey('self',on_delete=models.CASCADE, null=True, blank=True, related_name='Torneo_padre')
 
     def __str__(self):
         texto = self.nombre + " - " + self.fase     
@@ -104,7 +104,6 @@ class Clasificado(models.Model):
     class Meta:
         ordering = ['grupo','-puntos','-goles_D']
 
-
 class Partido(models.Model):
     torneo          = models.ForeignKey(Torneo, on_delete=models.CASCADE, null=False,blank=False)
     codigo          = models.CharField(max_length=30, default='')  
@@ -141,3 +140,39 @@ class Partido(models.Model):
 #        if self.fecha >= now : 
 #            texto = self.local.nombre + " ( "+ str(self.score_local)  + " ) vs ( "+ str(self.score_visitante) +" ) "+  self.visitante.nombre    
         return texto
+
+class Penca(models.Model):
+    nombre          = models.CharField(max_length=200)
+    fecha           = models.DateTimeField(editable = True, null=True, blank=True)
+    torneo          = models.ForeignKey(Torneo,on_delete=models.CASCADE)
+    participantes   = models.ManyToManyField(User,through='Participante')
+    buy_in          = models.FloatField(default=0)
+    pts_ganador     = models.IntegerField(default=3)
+    pts_resultado   = models.IntegerField(default=2)
+    pts_pasafase    = models.IntegerField(default=6)
+    pts_terycuar    = models.IntegerField(default=6)
+    pts_segundo     = models.IntegerField(default=10)
+    pts_primero     = models.IntegerField(default=20)
+
+    def __str__(self):
+        return self.nombre + " - " + self.torneo.nombre  
+
+    class Meta:
+        ordering = ['fecha','nombre','torneo']
+
+class Participante(models.Model):
+    penca           = models.ForeignKey(Penca,on_delete=models.CASCADE)             
+    usuario         = models.ForeignKey(User,on_delete=models.CASCADE)
+    torneo_hijo     = models.ForeignKey(Torneo,on_delete=models.CASCADE)
+    puntos          = models.IntegerField(default=0) 
+    pts_ganador     = models.IntegerField(default=0)
+    pts_resultado   = models.IntegerField(default=0)
+    pts_pasafase    = models.IntegerField(default=0)
+    pts_terycuar    = models.IntegerField(default=0)
+    pts_segundo     = models.IntegerField(default=0)
+    pts_primero     = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.usuario.first_name + " - " + self.penca.nombre
+    class Meta:
+        ordering = ['usuario','-puntos']
