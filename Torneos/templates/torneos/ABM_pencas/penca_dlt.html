@@ -1,0 +1,19 @@
+{% extends 'torneos/main.html' %}
+
+
+{% block content %}
+
+<div class="header-bar">
+    <a href="{% url 'home' %}">&#8592;Volver</a>
+
+</div>
+
+<div class="card_body">
+    <form method="Post">
+        {% csrf_token %}
+        <p>Seguro quieres borrar el torneo {{penca}}</p>
+        <input class="button" type="submit" value="Eliminar"/>
+    </form>
+</div>
+
+{% endblock content %}

@@ -11,7 +11,7 @@ from django import forms
 from django.forms import ModelForm, DateField
 from django.utils import timezone
 
-from .models import Equipo, Grupo, Partido, Torneo, Clasificado
+from .models import Equipo, Grupo, Participante, Partido, Penca, Torneo, Clasificado, User
 from django.urls import reverse_lazy
 from string import Template
 from django.utils.safestring import mark_safe
@@ -38,6 +38,75 @@ class LastActiveForm(forms.Form):
     Last Active Date Form
     """
     last_active = forms.DateField(widget=DateTimeInput) 
+
+class Penca_form(ModelForm):
+    class Meta:
+        model  = Penca
+        fields = '__all__'
+        widgets={'fecha':DateTimeInput()}   
+
+    def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
+
+        varibale = kwargs.pop('initial')
+
+        administrador = User.objects.get(id=varibale['pk'])
+        #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
+        super(Penca_form, self).__init__(*args, **kwargs)    
+        self.fields['administrador'].initial = administrador      
+
+class PencaUpd_form(ModelForm):
+    class Meta:
+        model  = Penca
+        fields = '__all__'
+        widgets={'fecha':DateTimeInput()}   
+
+    def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
+        #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
+        super(PencaUpd_form, self).__init__(*args, **kwargs)          
+
+
+class PencaConfig_form(ModelForm):
+    class Meta:
+        model  = Penca
+        fields = '__all__'
+        #widgets={'fecha':DateTimeInput()}   
+
+    def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
+        #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
+        varibale = kwargs.pop('initial')
+
+        penca = Penca.objects.get(id=varibale['pk'])
+        print('penca ==>>>',penca)
+        super(PencaUpd_form, self).__init__(*args, **kwargs)  
+        self.fields['penca'].widget.attrs['disabled'] = 'disabled'        
+        self.fields['torneo'].widget.attrs['disabled'] = 'disabled'
+        self.fields['nombre'].widget.attrs['disabled'] = 'disabled'
+        self.fields['fecha'].widget.attrs['disabled'] = 'disabled'
+        self.fields['administrador'].widget.attrs['disabled'] = 'disabled'
+        self.fields['buy_in'].widget.attrs['disabled'] = 'disabled'
+        self.fields['pts_ganador'].widget.attrs['disabled'] = 'disabled'
+        self.fields['pts_pasafase'].widget.attrs['disabled'] = 'disabled'
+        self.fields['pts_terycuar'].widget.attrs['disabled'] = 'disabled'
+        self.fields['pts_segundo'].widget.attrs['disabled'] = 'disabled'
+        self.fields['pts_primero'].widget.attrs['disabled'] = 'disabled'
+
+class Participante_form(ModelForm):
+    class Meta:
+        model  = Participante
+        fields = '__all__'
+    def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
+
+        varibale = kwargs.pop('initial')
+
+        penca = Penca.objects.get(id=varibale['pk'])
+        torneo_hijo = Torneo.objects.create(nombre=penca.torneo.nombre,fecha=penca.torneo.fecha,fase=penca.torneo.fase,cntequipos=penca.torneo.cntequipos,grupos=penca.torneo.grupos,grupos_mod=penca.torneo.grupos_mod,clasificanXgrupo=penca.torneo.clasificanXgrupo,torneoPadre=penca.torneo)
+
+        print('penca ===>>>',penca)
+        #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
+        super(Participante_form, self).__init__(*args, **kwargs)    
+        self.fields['penca'].initial = penca
+
+        self.fields['torneo_hijo'].initial = torneo_hijo
 
 class Equipo_form(ModelForm):
 

@@ -6,11 +6,22 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path('', HomeView, name='home'),
+    path('', HomeView.as_view(), name='home'),
     
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),    
     path('register/', AltaUsuario.as_view(), name='alta_usuario'),   
+
+    path('<int:penca_id>/participante/nuevo/', AltaParticipante.as_view(), name="participante_alta"),
+    path('<int:penca_id>/participante/upd/<int:pk>/', AltaParticipante.as_view(), name="participante_upd"),
+    path('<int:penca_id>/participante/delete/<int:pk>/', DltParticipante.as_view(), name="participante_dlt"),
+    
+ 
+    path('penca-alta/', AltaPenca.as_view(), name="penca_alta"),
+    path('penca-upd/<int:pk>', UpdPenca.as_view(), name="penca_upd"),
+    path('penca-dlt/<int:pk>', DltPenca.as_view(), name="penca_dlt"),
+    path('penca/<int:pk>/home', PencaHome.as_view(), name="penca_home"),
+    path('penca/<int:pk>/config', PencaConfig.as_view(), name="penca_config"),
 
     path('equipo/', ListaEquipos.as_view(), name='equipos'),
     path('equipo-alta/', AltaEquipo.as_view(), name="equipo_alta"),

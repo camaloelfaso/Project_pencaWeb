@@ -1,0 +1,41 @@
+{% extends 'torneos/main.html' %}
+{%load static%}
+{% block contentHeader %}
+    <div class="header-bar">
+        <a href="{% url 'home' %}">&#8592;Volver</a>
+        <div id="header_links">
+            <h2>{{penca.nombre}}</h2>
+        </div>
+        <a class="button" id="add_link" href="{% url 'penca_upd' penca.id %}" style="font-size: 14px;width:20px;height:20px;">
+            <img src="{% static 'config.png' %}" style="width:20px;height:20px;">
+        </a>          
+    </div>
+{% endblock contentHeader %}
+
+{% block content %}          
+    <div class="tareas_conjunto_items"> 
+        <div class="tareas_conjunto_items">     
+            <div class="tarea_item">
+                <div class="tarea_titulo">                                            
+                    <h2>Ranking de participantes </h2>            
+                </div>
+                <a id="add_link" href="{% url 'participante_alta' penca.id %}">
+                    <h5 style="color:black">Participantes &#x2b;</h5>
+                </a>                 
+            </div>    
+            <div class="tareas_conjunto_items">      
+                {% for participante in participantes %}      
+                    <div class="tarea_item">
+                        <div class="tarea_titulo">
+                            <p  >
+                                {{participante.usuario}}
+                                {{participante.puntos}}  |  {{participante.pts_ganador}}  |  {{participante.pts_resultado}}  |  {{participante.pts_pasafase}}  |  
+                                {{participante.pts_terycuar}}  |  {{participante.pts_segundo}}  |  {{participante.pts_primero}}   
+                            </p>        
+                        </div>                       
+                    </div>         
+                {% endfor %}   
+            </div>
+        </div>
+    </div>
+{% endblock content %} 

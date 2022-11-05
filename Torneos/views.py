@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect, HttpResponse
 
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView
+from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView,TemplateView
 from django.views.generic.list import ListView
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,22 +19,56 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-from .models import Equipo,Partido,Clasificado,Torneo, Grupo
-from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, Partido_Form, ListaPartido_form, Torneo_Form, Fixture_form
+from .models import Equipo, Participante,Partido,Clasificado, Penca,Torneo, Grupo
+from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, Participante_form, Partido_Form, ListaPartido_form, Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form, Fixture_form
 
-############################################################## USUARIO
-def HomeView(request):
-    context = {
-            'torneos'       : Torneo.objects.all(),
-            'equipos'       : Equipo.objects.all(),
-            'clasificados'  : Clasificado.objects.all(),
-            'partidos'      : Partido.objects.all()
-        }
-
-    #context_object_name = 'home'
-    template_name = "torneos/home.html"
+############################################################## HOMES
+class HomeView(LoginRequiredMixin,TemplateView):
+    context_object_name = "home_general"
+    template_name       = "torneos/home.html" 
     
-    return render(request,template_name, context )
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+        context['pencas']        = Penca.objects.filter(administrador=self.request.user)    
+        context['participantes'] = Participante.objects.filter(usuario=self.request.user)
+    #    context['torneos']      = Torneo.objects.all()
+    #    context['equipos']      = Equipo.objects.all()
+    #    context['clasificados'] = Clasificado.objects.all()
+    #    context['partidos']     = Partido.objects.all()
+        #contex['tareas'] -> importante apuntar al context_object_name que se quiere
+        #filter(tarea_usario=self.request.user) -> importante, seleccionar attributo a filtrar definido en models. para la clase en la que se esta trabajando
+        #context['partidos'] = context['partidos'].filter(Partido_usario=self.request.user)
+        #context['count'] = context['tareas'].filter(tarea_completada=False).count()
+        return context
+
+class PencaHome(LoginRequiredMixin,DetailView):
+    model = Penca
+    context_object_name = 'penca'
+    template_name = "torneos/penca_home.html"
+
+    def get_form_kwargs(self):
+            kwargs = super(PencaHome, self).get_form_kwargs()
+            kwargs.update({
+                            'pk': self.kwargs['pk'],
+                         })
+            return kwargs
+
+    def get_initial(self):
+        initial = super(PencaHome, self).get_initial()
+        return initial
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+        for participante in  Participante.objects.filter(penca = self.object).filter(usuario=self.request.user):
+            print('participante ===>>>', participante.usuario)
+            print('torneo_hijo  ===>>>', participante.torneo_hijo)
+            context['torneohijo'] = participante.torneo_hijo
+       #context['torneohijo']    = Torneo.objects.filter(id=participante.torneo_hijo)
+        context['participantes'] = Participante.objects.filter(penca = self.object)
+        return context   
+
+
 
 
 
@@ -49,7 +83,7 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         return reverse_lazy('home')
 
-class AltaUsuario(FormView):
+class AltaUsuario(FormView):   
     template_name               = "torneos/alta_usuario.html"        
     form_class                  = UserCreationForm
     redirect_authenticated_user = True
@@ -65,6 +99,129 @@ class AltaUsuario(FormView):
         if self.request.user.is_authenticated:
             return redirect('tasks')  
         return super(AltaUsuario, self).get(*args, **kargs)      
+
+############################################################## PARTICIPANTE
+
+class AltaParticipante(LoginRequiredMixin, CreateView):
+    model           = Participante
+    form_class      = Participante_form
+    template_name   = "torneos/ABM_participantes/participante_alta.html"
+    success_url     = reverse_lazy('penca_home')
+    def get_form_kwargs(self):
+            kwargs = super(AltaParticipante, self).get_form_kwargs()
+
+            return kwargs
+
+    def get_initial(self):
+        initial = super(AltaParticipante, self).get_initial()
+        initial.update({ 'pk' : self.kwargs.get('penca_id'),} )
+        return initial
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+       # context['equipo'] = filtraEquipo(self.object))
+        context['penca'] = self.kwargs.get('penca_id')
+
+        return context
+    
+    def form_valid(self, form):
+        form.instance.penca = Penca.objects.get(id=self.kwargs['penca_id'])
+        return super(AltaParticipante, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('penca_home', kwargs={'pk': self.kwargs['penca_id']})            
+
+class UpdParticipante(LoginRequiredMixin, UpdateView):
+    model           = Participante
+    form_class      = Participante_form
+    #fields          = "__all__"
+    template_name   = "torneos/ABM_participantes/participante_alta.html"
+    success_url     = reverse_lazy('penca_home')
+
+
+    def get_success_url(self):
+        return reverse_lazy('penca_home', kwargs={'pk': self.kwargs['penca_id']})  
+
+class DltParticipante(LoginRequiredMixin, DeleteView):
+    model           = Participante
+    fields          = "__all__"
+    template_name   = "torneos/ABM_participantes/participante_baja.html"
+    success_url     = reverse_lazy('penca_home')
+    
+    def get_success_url(self):
+        return reverse_lazy('penca_home', kwargs={'pk': self.kwargs['penca_id']})    
+############################################################## PENCA
+
+class AltaPenca(LoginRequiredMixin, CreateView):
+    model           = Penca
+    form_class      = Penca_form
+   
+    template_name   = "torneos/ABM_Pencas/penca_alta.html"
+    success_url     = reverse_lazy('home')
+
+    def get_initial(self):
+        initial = super(AltaPenca, self).get_initial()
+        initial.update({ 'pk' : self.request.user.pk })
+        return initial
+
+    def form_valid(self, form): # Valido que tenga bandera, sino asigno una por defecto
+        #Participante.objects.create(penca=self.object,torneo_hijo=form.instance.torneo)
+        return super(AltaPenca, self).form_valid(form)
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+
+        return context    
+
+class UpdPenca(LoginRequiredMixin, UpdateView):
+    model           = Penca
+    form_class      = PencaUpd_form
+    
+    template_name   = "torneos/ABM_Pencas/penca_alta.html"
+    success_url     = reverse_lazy('home')
+    
+
+    def form_valid(self, form):
+
+        return super(UpdPenca, self).form_valid(form)
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+        context['penca'] = self.object
+        return context    
+        
+class DltPenca(LoginRequiredMixin, DeleteView):
+    model           = Penca
+    
+    template_name   = "torneos/ABM_Pencas/penca_baja.html"
+    success_url     = reverse_lazy('equipos')
+
+class PencaConfig(LoginRequiredMixin,DetailView):
+    model               = Penca
+    form_class          = PencaConfig_form
+    context_object_name = 'penca_config'
+    template_name       = "torneos/penca_config.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(PencaHome, self).get_form_kwargs()
+        kwargs.update({
+                        'pk': self.kwargs['pk'],
+                        })
+        print('get kwargs', kwargs)
+        return kwargs
+
+    def get_initial(self):
+        initial = super(PencaHome, self).get_initial()
+        initial.update({ 'pk' : self.kwargs.get('pk'),} )
+        print('initial ', initial)
+        return initial
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context = super().get_context_data(**kwargs) 
+ 
+        context['participantes'] = Participante.objects.filter(penca = self.object)
+        return context     
+
 
 ############################################################## Equipo
 
@@ -232,7 +389,6 @@ def AltaTorneo_view(request):
         return redirect("torneos")
     return render(request,template_name, context)
 
-
 class UpdTorneo(LoginRequiredMixin, UpdateView):
     model           = Torneo
     fields          = '__all__'
@@ -263,8 +419,7 @@ class ListaTorneo(LoginRequiredMixin, ListView):
         #context['count'] = context['tareas'].filter(tarea_completada=False).count()
         return context
 
-
-class TorneoDetalle(DetailView):
+class TorneoDetalle(LoginRequiredMixin,DetailView):
 
     model = Torneo
     context_object_name = 'torneo'
@@ -344,8 +499,6 @@ def Arma_Grupos(torneo):
     return lista_grupos
 
 #Busca y arma el Ranking para la fase de gruupos
-
-           
 
 def Playoff_asigna_equipos(torneo):
     if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':

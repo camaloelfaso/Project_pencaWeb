@@ -145,7 +145,8 @@ class Penca(models.Model):
     nombre          = models.CharField(max_length=200)
     fecha           = models.DateTimeField(editable = True, null=True, blank=True)
     torneo          = models.ForeignKey(Torneo,on_delete=models.CASCADE)
-    participantes   = models.ManyToManyField(User,through='Participante')
+    #participantes   = models.ManyToManyField(User,through='Participante',related_name='Penca_participantes')
+    administrador   = models.ForeignKey(User,on_delete=models.CASCADE, related_name='Penca_admin', null=True, blank=True)
     buy_in          = models.FloatField(default=0)
     pts_ganador     = models.IntegerField(default=3)
     pts_resultado   = models.IntegerField(default=2)
@@ -155,7 +156,7 @@ class Penca(models.Model):
     pts_primero     = models.IntegerField(default=20)
 
     def __str__(self):
-        return self.nombre + " - " + self.torneo.nombre  
+        return self.nombre
 
     class Meta:
         ordering = ['fecha','nombre','torneo']
@@ -163,7 +164,7 @@ class Penca(models.Model):
 class Participante(models.Model):
     penca           = models.ForeignKey(Penca,on_delete=models.CASCADE)             
     usuario         = models.ForeignKey(User,on_delete=models.CASCADE)
-    torneo_hijo     = models.ForeignKey(Torneo,on_delete=models.CASCADE)
+    torneo_hijo     = models.ForeignKey(Torneo,on_delete=models.CASCADE, null=True, blank=True)
     puntos          = models.IntegerField(default=0) 
     pts_ganador     = models.IntegerField(default=0)
     pts_resultado   = models.IntegerField(default=0)
@@ -171,6 +172,7 @@ class Participante(models.Model):
     pts_terycuar    = models.IntegerField(default=0)
     pts_segundo     = models.IntegerField(default=0)
     pts_primero     = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.usuario.first_name + " - " + self.penca.nombre
