@@ -1,0 +1,55 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+ 
+    <div class="header-bar">
+        <a href="{% url 'torneo_home' torneo %}">&#8592;Volver</a>
+    </div>
+
+    <div class="div_Partido">
+        <form method="POST">    
+            {% csrf_token %}
+            <div>
+                    <img src="{{partido.local.bandera.url}}" style="width:80px;height:80px;padding-right: 91px;
+                    padding-top: 50px;">
+                      
+                    <img src="{{partido.visitante.bandera.url}}" style="width:80px;height:80px;">
+            </div>
+            <div class= "equipos_partido" >
+                {%if partido.modif_ranking %}
+                    <h2 style="color: #fff;">
+                        {{partido.local.nombre}}
+                        ( {{partido.score_local}} )
+                        VS 
+                        ( {{partido.score_visitante}} )    
+                        {{partido.visitante.nombre}}
+                    </h2> 
+                {% else %}    
+                    <h2 style="color: #fff;">
+                        {{partido.local.nombre}}
+                        ( 
+                        {%if partido.score_local is None %}   
+                            <input type="integer" size="1" name="goles_local" value=" ">  
+                        {%else%}
+                            <input type="integer" size="1" name="goles_local" value="{{goles_local}}">
+                        {%endif%}
+                        )
+                        VS 
+                        ( 
+                        {%if partido.score_visitante is None %}   
+                            <input type="integer" size="1" name="goles_visitante" value="" >  
+                        {%else%}
+                            <input type="integer" size="1" name="goles_visitante" value="{{partido.score_visitante}}">
+                        {%endif%}
+                        )    
+                        {{partido.visitante.nombre}}
+                    </h2>                
+                {%endif%}
+            </div>
+            <input class="button" type="submit" value="Ingresar">
+        </form>     
+        
+    </div>
+
+
+{% endblock content %}

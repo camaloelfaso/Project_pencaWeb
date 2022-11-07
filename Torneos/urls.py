@@ -45,6 +45,7 @@ urlpatterns = [
     path('torneo/delete/<int:pk>', DltTorneo.as_view(), name="torneo_dlt"),
 
     path('torneo/<int:pk>/fixture/', crea_Fixture.as_view(), name="genera_fixture"),
+    path('torneo/<int:pk>/cargaClasificados/', crea_Clasificados.as_view(), name="carga_clasificados"),
 
 ]
 

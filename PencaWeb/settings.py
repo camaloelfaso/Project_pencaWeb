@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Torneos.apps.TorneosConfig',
+    'import_export',
 ]
 
 MIDDLEWARE = [

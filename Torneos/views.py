@@ -20,26 +20,18 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import Equipo, Participante,Partido,Clasificado, Penca,Torneo, Grupo
-from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, Participante_form, Partido_Form, ListaPartido_form, Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form, Fixture_form
+from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, ParticipanteAlta_form, ParticipanteUpd_form, Partido_Form, ListaPartido_form, PartidoUpd_Form, Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form, Fixture_form
 
 ############################################################## HOMES
 class HomeView(LoginRequiredMixin,TemplateView):
     context_object_name = "home_general"
     template_name       = "torneos/home.html" 
-    
 
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
         context = super().get_context_data(**kwargs) 
         context['pencas']        = Penca.objects.filter(administrador=self.request.user)    
         context['participantes'] = Participante.objects.filter(usuario=self.request.user)
-    #    context['torneos']      = Torneo.objects.all()
-    #    context['equipos']      = Equipo.objects.all()
-    #    context['clasificados'] = Clasificado.objects.all()
-    #    context['partidos']     = Partido.objects.all()
-        #contex['tareas'] -> importante apuntar al context_object_name que se quiere
-        #filter(tarea_usario=self.request.user) -> importante, seleccionar attributo a filtrar definido en models. para la clase en la que se esta trabajando
-        #context['partidos'] = context['partidos'].filter(Partido_usario=self.request.user)
-        #context['count'] = context['tareas'].filter(tarea_completada=False).count()
+
         return context
 
 class PencaHome(LoginRequiredMixin,DetailView):
@@ -68,10 +60,30 @@ class PencaHome(LoginRequiredMixin,DetailView):
         context['participantes'] = Participante.objects.filter(penca = self.object)
         return context   
 
+class TorneoDetalle(LoginRequiredMixin,DetailView):
 
+    model = Torneo
+    context_object_name = 'torneo'
+    template_name = "torneos/torneo_home.html"
 
+    def get_initial(self):
+        initial = super(TorneoDetalle, self).get_initial()
+        return initial
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=Torneo.objects.all())
+        return super().get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context                  = super().get_context_data(**kwargs)
+        context['torneo']        = self.object
+        actualiza_ranking(self.object)
+        Playoff_asigna_equipos(self.object)
+        context['equipos_grupo'] = Arma_Grupos(self.object)
+        context['partidos']      = torneo_fixture(self.object)
+        context['fixture']       = torneo_fixture(self.object)
+
+        return context
 
 ############################################################## USUARIO
 
@@ -104,7 +116,7 @@ class AltaUsuario(FormView):
 
 class AltaParticipante(LoginRequiredMixin, CreateView):
     model           = Participante
-    form_class      = Participante_form
+    form_class      = ParticipanteAlta_form
     template_name   = "torneos/ABM_participantes/participante_alta.html"
     success_url     = reverse_lazy('penca_home')
     def get_form_kwargs(self):
@@ -126,6 +138,7 @@ class AltaParticipante(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         form.instance.penca = Penca.objects.get(id=self.kwargs['penca_id'])
+        clonaTorneo(form.instance.torneo_hijo, form.instance.penca.torneo)
         return super(AltaParticipante, self).form_valid(form)
 
     def get_success_url(self):
@@ -133,7 +146,7 @@ class AltaParticipante(LoginRequiredMixin, CreateView):
 
 class UpdParticipante(LoginRequiredMixin, UpdateView):
     model           = Participante
-    form_class      = Participante_form
+    form_class      = ParticipanteUpd_form
     #fields          = "__all__"
     template_name   = "torneos/ABM_participantes/participante_alta.html"
     success_url     = reverse_lazy('penca_home')
@@ -150,6 +163,8 @@ class DltParticipante(LoginRequiredMixin, DeleteView):
     
     def get_success_url(self):
         return reverse_lazy('penca_home', kwargs={'pk': self.kwargs['penca_id']})    
+
+
 ############################################################## PENCA
 
 class AltaPenca(LoginRequiredMixin, CreateView):
@@ -165,7 +180,6 @@ class AltaPenca(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form): # Valido que tenga bandera, sino asigno una por defecto
-        #Participante.objects.create(penca=self.object,torneo_hijo=form.instance.torneo)
         return super(AltaPenca, self).form_valid(form)
 
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
@@ -217,8 +231,8 @@ class PencaConfig(LoginRequiredMixin,DetailView):
         return initial
 
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
-        context = super().get_context_data(**kwargs) 
- 
+        context                  = super().get_context_data(**kwargs) 
+        context['penca']         = self.object
         context['participantes'] = Participante.objects.filter(penca = self.object)
         return context     
 
@@ -291,6 +305,7 @@ class AltaClasificado(LoginRequiredMixin, CreateView):
     form_class      = Clasificado_form
     template_name   = "torneos/ABM_clasificados/clasificado_A.html"
     success_url     = reverse_lazy('torneo_home')
+
     def get_form_kwargs(self):
             kwargs = super(AltaClasificado, self).get_form_kwargs()
 
@@ -302,9 +317,7 @@ class AltaClasificado(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
         context = super().get_context_data(**kwargs) 
-       # context['equipo'] = filtraEquipo(self.object))
         context['torneo'] = self.kwargs.get('torneo_id')
-
         return context
     
     def form_valid(self, form):
@@ -351,21 +364,7 @@ class ListaClasificado(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
         context = super().get_context_data(**kwargs) 
-        context['torneo']       = self.kwargs.get('torneo_id')
-       # print('torneo en context ======>>>>', context['torneo'])
-
-       # torneo = Torneo.objects.filter(id=context['torneo'])
-       # print('torneo ======>>>>', context['torneo'])
-
-       # lista_clasificados = Arma_Grupos(torneo, Grupos)
-       # context['participantes'] = Clasificado.objects.filter(torneo=torneo) 
-       # print('lista_clasificados  ======>>>>', context['participantes'] )
-        
-       # if len(context['participantes']) < torneo.cntequipos and len(context['participantes']) > 0 :   
-       #     context['hay_cupos'] = True 
-       # else:
-       #     context['hay_cupos'] = False
-
+        context['torneo'] = self.kwargs.get('torneo_id')
         #logica del buscardor
         search_input = self.request.GET.get('objeto_buscado') or ''
         if search_input:
@@ -405,7 +404,6 @@ class DltTorneo(LoginRequiredMixin, DeleteView):
     template_name   = "torneos/ABM_torneos/torneo_dlt.html"
     success_url     = reverse_lazy('torneos')
     
-
 class ListaTorneo(LoginRequiredMixin, ListView):
     model               = Torneo
     context_object_name = "torneos"
@@ -419,199 +417,8 @@ class ListaTorneo(LoginRequiredMixin, ListView):
         #context['count'] = context['tareas'].filter(tarea_completada=False).count()
         return context
 
-class TorneoDetalle(LoginRequiredMixin,DetailView):
-
-    model = Torneo
-    context_object_name = 'torneo'
-    template_name = "torneos/torneo_home.html"
-
-    def get_initial(self):
-        initial = super(TorneoDetalle, self).get_initial()
-        return initial
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object(queryset=Torneo.objects.all())
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context                  = super().get_context_data(**kwargs)
-        context['torneo']        = self.object
-        actualiza_ranking(self.object)
-        Playoff_asigna_equipos(self.object)
-        context['equipos_grupo'] = Arma_Grupos(self.object)
-        context['partidos']      = torneo_fixture(self.object)
-        context['fixture']       = torneo_fixture(self.object)
-
-        return context
-
-#Busca y ordena los partidos segun las faces del torneo
-def torneo_fixture(torneo):
-    partidos = [] 
-    partidos_grupo = []
-    playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
-    x = 0
-    #cargo encuentros fase grupos
-    for grupo in Grupo.objects.filter(toreno=torneo):
-        partidos_grupo.append(grupo.nombre)
-#        print('grupos =====>>>>>>',grupo.nombre)
-        
-        for partido in Partido.objects.filter(torneo=torneo):
-            etapa = partido.codigo.split('_',1) 
-            if etapa[0] == grupo.nombre:            
-                partidos_grupo.append(partido)
-        if len(partidos_grupo)>1:        
-            partidos.append(partidos_grupo)
-        partidos_grupo = []
-        x += 1
-
-    #cargo encuentros playoff
-    
-    while playoff >=0:
-        partidos_grupo.append(str(int(playoff)))
-        for partido in Partido.objects.filter(torneo=torneo):
-            etapa = partido.codigo.split('_',1) 
-            if etapa[0] == str(int(playoff)):            
-                partidos_grupo.append(partido)
-        if len(partidos_grupo)>1:        
-            partidos.append(partidos_grupo)
-        partidos_grupo = []
-        
-        if playoff > 1:  
-            playoff = playoff / 2 
-        else:
-            playoff -= 1
-    return partidos   
-
-#busca grupos en los que hay equipos clasificados, si en algun grupo no hay equipos no lo muestra.
-def Arma_Grupos(torneo):    
-    grupo_equipos = []
-    lista_grupos = [] 
-    x = 0 
-    for grupo in Grupo.objects.filter(toreno=torneo):
-        grupo_equipos = []
-        grupo_equipos.append(grupo.nombre)
-        for clasificado in  Clasificado.objects.filter(torneo=torneo).filter(grupo=grupo): #obtengo todos los clasificados a ese grupo
-            #if clasificado.grupo == Grupos[x][0]:
-                grupo_equipos.append(clasificado)
-        if len(grupo_equipos)>1:       
-            lista_grupos.append(grupo_equipos)
-        x += 1         
-    return lista_grupos
-
-#Busca y arma el Ranking para la fase de gruupos
-
-def Playoff_asigna_equipos(torneo):
-    if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
-        # obtengo clasificados por gurpo
-        for grupo in Grupo.objects.filter(toreno=torneo):    
-            asignados = 1
-            for clasificado in Clasificado.objects.filter(torneo=torneo).filter(grupo=grupo).order_by('-puntos'):
-                if clasificado.jugados > 0:
-                    if asignados == 1:
-                        codigo_partido = str(int(asignados)) + grupo.nombre + " vs "
-                    else:                 
-                        codigo_partido = " vs "+ str(int(asignados)) + grupo.nombre
-                    for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_partido):
-                        if asignados // 2:
-                            partido.local = clasificado.equipo
-                        else:
-                            partido.visitante = clasificado.equipo
-                        partido.save()        
-                    asignados += 1
-                    if asignados > torneo.clasificanXgrupo:
-                        break
-                    
-        #busco en los playoff 
-        playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
-        while playoff >=0:
-            codigo_playoff = str(int(playoff))+"_"
-            print(str(int(playoff)))
-            if playoff > 2: #en SEMIFINAL cambia la logica
-                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
-                    codigo_partido = partido.codigo.split(" ",1)     
-                    prox_codigo    = codigo_partido[0] + " vs " 
-                    encontre = False
-                    for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                        encontre = True
-                        if partido.resultado == 'L':
-                            prox_partido.local = partido.local
-                        if partido.resultado == 'V':
-                            prox_partido.local = partido.visitante    
-                        prox_partido.save()    
-                    if not encontre:
-                        prox_codigo    = " vs " + codigo_partido[0]
-                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                            encontre = True
-                            if partido.resultado == 'L':
-                                prox_partido.visitante = partido.local
-                            if partido.resultado == 'V':
-                                prox_partido.visitante = partido.visitante    
-                            prox_partido.save()    
-            if playoff == 2:
-                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
-                    if partido.resultado == 'L':
-                        #ganador va a la final
-                        codigo_partido = partido.codigo.split(" ",1)     
-                        prox_codigo    =  "0_1 "+codigo_partido[0] + " vs "      
-                        encontre = False
-                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                            encontre = True                            
-                            prox_partido.local = partido.local  
-                            prox_partido.save()    
-                        if not encontre:
-                            prox_codigo    = "0_1 "
-                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                                encontre = True
-                                prox_partido.visitante = partido.local   
-                                prox_partido.save()
-                        #perdedor va por 3er y 4to 
-                        prox_codigo    =  "1_1 "+codigo_partido[0] + " vs "      
-                        encontre = False
-                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                            encontre = True                            
-                            prox_partido.local = partido.visitante   
-                            prox_partido.save()    
-                        if not encontre:
-                            prox_codigo    = "1_1 "
-                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                                encontre = True
-                                prox_partido.visitante = partido.visitante   
-                                prox_partido.save()
-                    if partido.resultado == 'V':               
-                        #ganador va a la final
-                        codigo_partido = partido.codigo.split(" ",1)     
-                        prox_codigo    =  "0_1 "+codigo_partido[0] + " vs "      
-                        encontre = False
-                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                            encontre = True                            
-                            prox_partido.local = partido.visitante 
-                            prox_partido.save()    
-                        if not encontre:
-                            prox_codigo    = "0_1 "
-                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                                encontre = True
-                                prox_partido.visitante = partido.visitante  
-                                prox_partido.save()
-                        #perdedor va por 3er y 4to 
-                        prox_codigo    =  "1_1 "+codigo_partido[0] + " vs "      
-                        encontre = False
-                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                            encontre = True                            
-                            prox_partido.local = partido.local                                                      
-                            prox_partido.save()    
-                        if not encontre:
-                            prox_codigo    = "1_1 "
-                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
-                                encontre = True
-                                prox_partido.visitante = partido.local                            
-                                prox_partido.save()
-            if playoff > 1:  
-                playoff = playoff / 2 
-            else:
-                playoff -= 1
 
 ############################################################## Partido
- 
  
 class AltaPartido(LoginRequiredMixin, CreateView):
     model           = Partido
@@ -646,37 +453,37 @@ class AltaPartido(LoginRequiredMixin, CreateView):
        # print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})    
 
-class UpdPartido(LoginRequiredMixin, UpdateView):
+class UpdPartido(LoginRequiredMixin, DetailView):
     model           = Partido
-    form_class      = Partido_Form
-    template_name   = "torneos/ABM_partidos/partido_alta.html"
+    form_class      = PartidoUpd_Form
+    template_name   = "torneos/ABM_partidos/partido_upd.html"
     success_url     = reverse_lazy('torneo_home')
 
-
-    def get_form_kwargs(self):
-            kwargs = super(UpdPartido, self).get_form_kwargs()
-            kwargs.update({
-                            'pk': self.kwargs['torneo_id'],
-                         })
-            return kwargs
-
-    def get_initial(self):
-        initial = super(UpdPartido, self).get_initial()
-        initial.update({ 'pk' : self.kwargs.get('torneo_id'),} )
-        return initial
-
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
-        context = super().get_context_data(**kwargs) 
-        context['torneo'] = self.kwargs.get('torneo_id')
-       # context['equipo'] = filtraEquipo(self.object))
-       # context['torneo'] = context['torneo'].filter(torneo=self.torneo)     
-        return context
+        context                  = super().get_context_data(**kwargs)
+        context['torneo']        = self.kwargs.get('torneo_id') 
+        context['partido']       = self.object
+        context['goles_local']   = Partido.objects.get(id=self.kwargs.get('pk')).score_local  
+        context['goles_local']   = Partido.objects.get(id=self.kwargs.get('pk')).score_visitante
+        return context     
 
-
-    def get_success_url(self):
-       # print('get_success_url =======>>>>>>> ',self.kwargs)
-        #actualiza_ranking(self.object)
-        return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})  
+    def post(self, request, *args, **kwargs): 
+        partido_aux                 = Partido.objects.get(id=self.kwargs.get('pk'))
+        goles_local                 = self.request.POST.get('goles_local')
+        goles_visitante             = self.request.POST.get('goles_visitante')
+        partido_aux.score_local     = goles_local
+        partido_aux.score_visitante = goles_visitante 
+        if goles_local > goles_visitante:
+            partido_aux.resultado = "L"
+        if goles_local < goles_visitante:
+            partido_aux.resultado = "V"
+        if goles_local == goles_visitante:
+            partido_aux.resultado = "E"
+        if goles_local is None or goles_visitante is None:
+            partido_aux.resultado = "P"
+        partido_aux.save()    
+             
+        return HttpResponseRedirect (reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})     )
 
 class DltPartido(LoginRequiredMixin, DeleteView):
     model           = Partido
@@ -687,7 +494,6 @@ class DltPartido(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})  
-
 
 class ListaPartido(LoginRequiredMixin, ListView):
     model               = Torneo
@@ -727,8 +533,8 @@ class crea_Fixture(LoginRequiredMixin, DetailView):
     model               = Torneo
     form_class          = Fixture_form
     context_object_name = "fixture"
-    template_name = "torneos/ABM_partidos/crear_fixtures.html"
-    success_url     = reverse_lazy('torneo_home')
+    template_name       = "torneos/ABM_partidos/crear_fixtures.html"
+    success_url         = reverse_lazy('torneo_home')
 
     def get_form_kwargs(self):
         print('get_form_kwargs ======>>>>>')    
@@ -762,6 +568,55 @@ class crea_Fixture(LoginRequiredMixin, DetailView):
         Alta_fixture(torneo)
         return HttpResponseRedirect (reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['pk']})     )
 
+
+
+class crea_Clasificados(LoginRequiredMixin, TemplateView):
+    context_object_name = "cargaClasificado"
+    template_name       = "torneos/ABM_clasificados/carga_clasificados.html"
+ #   success_url         = reverse_lazy('clasificados')
+
+    def get_form_kwargs(self): 
+        kwargs = super(crea_Clasificados, self).get_form_kwargs()
+        return kwargs    
+
+    def get_initial(self):
+        initial = super(crea_Clasificados, self).get_initial()
+        initial.update({ 'pk' : self.kwargs.get('pk'),} )
+        return initial
+
+    def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
+        context           = super().get_context_data(**kwargs) 
+        context['torneo'] = self.kwargs.get('pk')
+        return context
+
+    def post(self, request, *args, **kwargs):  
+        archivo         = request.FILES['listaClasificados'] 
+        archivo_data    = archivo.read().decode('utf-8') 
+        archivo_lineas  = archivo_data.split('\n')
+        #RECORRO LINEAS DEL CVS 
+        torneo = Torneo.objects.get(id=self.kwargs.get('pk'))
+        for linea in archivo_lineas:
+            valor = linea.split(',')
+            #print ('torneo ====>>>>',torneo)
+            #print ('valor[0] ====>>>>',valor[0])
+            #print ('valor[1] ====>>>>',valor[1])
+            #busco que exista el equipo en equipos, sino existo lo creo.
+            if valor[0]:
+                if not Equipo.objects.filter(nombre=valor[0]):
+                    Equipo.objects.create(nombre=valor[0],bandera="")                 
+                equipo = Equipo.objects.get(nombre=valor[0])
+            if valor[1]:
+                if not Grupo.objects.filter(toreno=torneo).filter(nombre=valor[1]):
+                    Grupo.objects.create(toreno=torneo,nombre=valor[1])
+                grupo = Grupo.objects.filter(toreno=torneo).get(nombre=valor[1])            
+            #print ('Equipo ====>>>>',equipo)
+            #print ('grupo ====>>>>',grupo)
+            Clasificado.objects.update_or_create(torneo=torneo,equipo=equipo,grupo=grupo)
+            #print ('clasificado creado====>>>>')
+
+        return HttpResponseRedirect (reverse_lazy('clasificados', kwargs={'torneo_id': kwargs['pk']})     )
+
+############################################################## Metodos
 
 def Alta_fixture(torneo):
     grupo = [] # lista de grupos, en cada grupo hay lista de equipos
@@ -893,35 +748,37 @@ def actualiza_ranking(torneo):
                 goles_D     = 0
                 for partido in Partido.objects.filter(torneo=torneo).filter(local=clasificado.equipo).exclude(resultado='P'):
                     grupo_cod = partido.codigo.split("_",1)
-                    if grupo_cod[0] == grupo.nombre:                        
-                        jugados += 1
-                        goles_F += partido.score_local
-                        goles_C += partido.score_visitante
-                        goles_D += partido.score_local - partido.score_visitante
-                        if partido.resultado == 'L':
-                            ganados += 1
-                            puntos  += 3
-                        if partido.resultado == 'E':
-                            empatados += 1
-                            puntos    += 1
-                        if partido.resultado == 'V':
-                            perdidos += 1
+                    if grupo_cod[0] == grupo.nombre:      
+                        if partido.score_local and partido.score_visitante:                        
+                            jugados += 1
+                            goles_F += partido.score_local
+                            goles_C += partido.score_visitante
+                            goles_D += partido.score_local - partido.score_visitante
+                            if partido.resultado == 'L':
+                                ganados += 1
+                                puntos  += 3
+                            if partido.resultado == 'E':
+                                empatados += 1
+                                puntos    += 1
+                            if partido.resultado == 'V':
+                                perdidos += 1
 
                 for partido in Partido.objects.filter(torneo=torneo).filter(visitante=clasificado.equipo).exclude(resultado='P'):
                     grupo_cod = partido.codigo.split("_",1)
                     if grupo_cod[0] == grupo.nombre:
-                        jugados += 1
-                        goles_F += partido.score_visitante
-                        goles_C += partido.score_local
-                        goles_D += partido.score_visitante - partido.score_local 
-                        if partido.resultado == 'V':
-                            ganados += 1
-                            puntos  += 3
-                        if partido.resultado == 'E':
-                            empatados += 1
-                            puntos    += 1
-                        if partido.resultado == 'L':
-                            perdidos += 1      
+                        if partido.score_local and partido.score_visitante: 
+                            jugados += 1
+                            goles_F += partido.score_visitante
+                            goles_C += partido.score_local
+                            goles_D += partido.score_visitante - partido.score_local 
+                            if partido.resultado == 'V':
+                                ganados += 1
+                                puntos  += 3
+                            if partido.resultado == 'E':
+                                empatados += 1
+                                puntos    += 1
+                            if partido.resultado == 'L':
+                                perdidos += 1      
                         
                 clasificado.jugados     = jugados 
                 clasificado.puntos      = puntos
@@ -934,3 +791,188 @@ def actualiza_ranking(torneo):
                 clasificado.activo = True
                 clasificado.save()
 
+#Busca y ordena los partidos segun las faces del torneo
+def torneo_fixture(torneo):
+    partidos = [] 
+    partidos_grupo = []
+    playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
+    x = 0
+    #cargo encuentros fase grupos
+    for grupo in Grupo.objects.filter(toreno=torneo):
+        partidos_grupo.append(grupo.nombre)
+#        print('grupos =====>>>>>>',grupo.nombre)
+        
+        for partido in Partido.objects.filter(torneo=torneo):
+            etapa = partido.codigo.split('_',1) 
+            if etapa[0] == grupo.nombre:            
+                partidos_grupo.append(partido)
+        if len(partidos_grupo)>1:        
+            partidos.append(partidos_grupo)
+        partidos_grupo = []
+        x += 1
+
+    #cargo encuentros playoff
+    
+    while playoff >=0:
+        partidos_grupo.append(str(int(playoff)))
+        for partido in Partido.objects.filter(torneo=torneo):
+            etapa = partido.codigo.split('_',1) 
+            if etapa[0] == str(int(playoff)):            
+                partidos_grupo.append(partido)
+        if len(partidos_grupo)>1:        
+            partidos.append(partidos_grupo)
+        partidos_grupo = []
+        
+        if playoff > 1:  
+            playoff = playoff / 2 
+        else:
+            playoff -= 1
+    return partidos   
+
+#busca grupos en los que hay equipos clasificados, si en algun grupo no hay equipos no lo muestra.
+def Arma_Grupos(torneo):    
+    grupo_equipos = []
+    lista_grupos = [] 
+    x = 0 
+    for grupo in Grupo.objects.filter(toreno=torneo):
+        grupo_equipos = []
+        grupo_equipos.append(grupo.nombre)
+        for clasificado in  Clasificado.objects.filter(torneo=torneo).filter(grupo=grupo): #obtengo todos los clasificados a ese grupo
+            #if clasificado.grupo == Grupos[x][0]:
+                grupo_equipos.append(clasificado)
+        if len(grupo_equipos)>1:       
+            lista_grupos.append(grupo_equipos)
+        x += 1         
+    return lista_grupos
+
+#Busca y arma el Ranking para la fase de gruupos
+def Playoff_asigna_equipos(torneo):
+    if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
+        # obtengo clasificados por gurpo
+        for grupo in Grupo.objects.filter(toreno=torneo):    
+            asignados = 1
+            for clasificado in Clasificado.objects.filter(torneo=torneo).filter(grupo=grupo).order_by('-puntos'):
+                if clasificado.jugados > 0:
+                    if asignados == 1:
+                        codigo_partido = str(int(asignados)) + grupo.nombre + " vs "
+                    else:                 
+                        codigo_partido = " vs "+ str(int(asignados)) + grupo.nombre
+                    for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_partido):
+                        if asignados // 2:
+                            partido.local = clasificado.equipo
+                        else:
+                            partido.visitante = clasificado.equipo
+                        partido.save()        
+                    asignados += 1
+                    if asignados > torneo.clasificanXgrupo:
+                        break
+                    
+        #busco en los playoff 
+        playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
+        while playoff >=0:
+            codigo_playoff = str(int(playoff))+"_"
+            print(str(int(playoff)))
+            if playoff > 2: #en SEMIFINAL cambia la logica
+                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
+                    codigo_partido = partido.codigo.split(" ",1)     
+                    prox_codigo    = codigo_partido[0] + " vs " 
+                    encontre = False
+                    for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                        encontre = True
+                        if partido.resultado == 'L':
+                            prox_partido.local = partido.local
+                        if partido.resultado == 'V':
+                            prox_partido.local = partido.visitante    
+                        prox_partido.save()    
+                    if not encontre:
+                        prox_codigo    = " vs " + codigo_partido[0]
+                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                            encontre = True
+                            if partido.resultado == 'L':
+                                prox_partido.visitante = partido.local
+                            if partido.resultado == 'V':
+                                prox_partido.visitante = partido.visitante    
+                            prox_partido.save()    
+            if playoff == 2:
+                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
+                    if partido.resultado == 'L':
+                        #ganador va a la final
+                        codigo_partido = partido.codigo.split(" ",1)     
+                        prox_codigo    =  "0_1 "+codigo_partido[0] + " vs "      
+                        encontre = False
+                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                            encontre = True                            
+                            prox_partido.local = partido.local  
+                            prox_partido.save()    
+                        if not encontre:
+                            prox_codigo    = "0_1 "
+                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                                encontre = True
+                                prox_partido.visitante = partido.local   
+                                prox_partido.save()
+                        #perdedor va por 3er y 4to 
+                        prox_codigo    =  "1_1 "+codigo_partido[0] + " vs "      
+                        encontre = False
+                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                            encontre = True                            
+                            prox_partido.local = partido.visitante   
+                            prox_partido.save()    
+                        if not encontre:
+                            prox_codigo    = "1_1 "
+                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                                encontre = True
+                                prox_partido.visitante = partido.visitante   
+                                prox_partido.save()
+                    if partido.resultado == 'V':               
+                        #ganador va a la final
+                        codigo_partido = partido.codigo.split(" ",1)     
+                        prox_codigo    =  "0_1 "+codigo_partido[0] + " vs "      
+                        encontre = False
+                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                            encontre = True                            
+                            prox_partido.local = partido.visitante 
+                            prox_partido.save()    
+                        if not encontre:
+                            prox_codigo    = "0_1 "
+                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                                encontre = True
+                                prox_partido.visitante = partido.visitante  
+                                prox_partido.save()
+                        #perdedor va por 3er y 4to 
+                        prox_codigo    =  "1_1 "+codigo_partido[0] + " vs "      
+                        encontre = False
+                        for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                            encontre = True                            
+                            prox_partido.local = partido.local                                                      
+                            prox_partido.save()    
+                        if not encontre:
+                            prox_codigo    = "1_1 "
+                            for prox_partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=prox_codigo):
+                                encontre = True
+                                prox_partido.visitante = partido.local                            
+                                prox_partido.save()
+            if playoff > 1:  
+                playoff = playoff / 2 
+            else:
+                playoff -= 1
+
+#configura el torneo hijo, a imagen del padre
+def clonaTorneo(torneo_hijo, torneo):
+    #creo todos los grupos asociados al torneo
+    for grupo in Grupo.objects.filter(toreno=torneo):
+        grupo_nuevo        = grupo
+        grupo_nuevo.toreno = torneo_hijo
+        grupo_nuevo.save()
+        print('grupo_nuevo', grupo_nuevo)
+    #creo todos los clasificados asociados al torneo
+    for clasificado in Clasificado.objects.filter(torneo=torneo):
+        clasificado_nuevo        = clasificado
+        clasificado_nuevo.torneo = torneo_hijo
+        clasificado_nuevo.save()
+        print('clasificado_nuevo', clasificado_nuevo)
+    #creo todos los partidos asociados al torneo
+    for partido in Partido.objects.filter(torneo=torneo):
+        partido_nuevo        = partido
+        partido_nuevo.torneo = torneo_hijo
+        partido_nuevo.save()
+        print('partido_nuevo', partido_nuevo)     

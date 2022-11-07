@@ -76,8 +76,7 @@ class Grupo(models.Model):
     toreno = models.ForeignKey(Torneo,on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
 
-    def __str__(self):
-        
+    def __str__(self):   
         return self.nombre
     
     class Meta:
@@ -110,8 +109,8 @@ class Partido(models.Model):
     fecha           = models.DateTimeField(editable = True, null=True, blank=True)
     local           = models.ForeignKey(Equipo, on_delete=models.CASCADE,  null=True, blank=True, related_name='Partido_local')
     visitante       = models.ForeignKey(Equipo, on_delete=models.CASCADE,  null=True, blank=True, related_name='Partido_visitante')
-    score_local     = models.IntegerField(default=0)
-    score_visitante = models.IntegerField(default=0)
+    score_local     = models.IntegerField(null=True, blank=True)
+    score_visitante = models.IntegerField(null=True, blank=True)
     resultado       = models.CharField(max_length=1, choices=STATUS, default=EMPATE) 
     modif_ranking   = models.BooleanField(default=False)       
    

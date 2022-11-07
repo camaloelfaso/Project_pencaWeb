@@ -1,0 +1,28 @@
+{% extends 'torneos/main.html' %}
+
+{% block content %}
+
+<div class="header-bar">
+    <a href="{% url 'clasificados' torneo %}">&#8592;Volver</a>
+</div>
+
+<div class="card_body">
+    <div class="tareas_conjunto_items" style="padding: 20px;">
+        <p>
+            Al cargar todos los clasificados, se sobre escribiran todos los clasificados previamente.
+        </p>
+        <p>
+            El archivo CSV de debe de seguir el siguiente formatos.
+            \n
+            Nombre de equipo y grupo al que pertenece.
+        </p>
+        <form action="" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+            <input type="file" name="listaClasificados" value="arcvhivo">
+        
+            <input class="button" type="submit" value="Cargar Archivo">
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

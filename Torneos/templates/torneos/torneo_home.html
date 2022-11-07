@@ -30,7 +30,7 @@
                                 {%else%}    
                                     <div class="tarea_item">
                                         <div class="tarea_titulo">
-                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;"></div>                                            
+                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;"></div>                                        
                                             <p  >
                                                 {{clasificado.equipo.nombre}}
                                                 {{clasificado.puntos}}  |  {{clasificado.jugados}}  |  {{clasificado.ganados}}  |  {{clasificado.empatados}}  |  
@@ -90,7 +90,25 @@
                                         {%endif%}
                                         {% if partido.local and partido.visitante %}
                                             <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} ({{partido.score_local}}) VS ({{partido.score_visitante}}) {{partido.visitante.nombre}} </a>
+                                                <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} 
+                                                    {{partido.local.nombre}}
+                                                    ( 
+                                                    {%if partido.score_local is None %}   
+                                                        
+                                                    {%else%}
+                                                        {{partido.score_local}}
+                                                    {%endif%}
+                                                    )
+                                                    VS 
+                                                    ( 
+                                                    {%if partido.score_visitante is None %}   
+                                                        
+                                                    {%else%}
+                                                        {{partido.score_visitante}}
+                                                    {%endif%}
+                                                    ) 
+                                                    {{partido.visitante.nombre}} 
+                                                </a>
                                             <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                         {% elif partido.local and not partido.visitante %}
                                             <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>

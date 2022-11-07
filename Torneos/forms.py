@@ -20,6 +20,16 @@ from django.forms import ImageField
 
 
 ############################################################## WIDGET
+class NoInput(forms.Widget):
+    def render(self, name, value, attrs=None):
+        return mark_safe(value)
+
+class StaticField(forms.Field):
+    
+    widget = NoInput
+    
+    def clean(self, value):
+        return 
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime-local'
@@ -90,23 +100,36 @@ class PencaConfig_form(ModelForm):
         self.fields['pts_segundo'].widget.attrs['disabled'] = 'disabled'
         self.fields['pts_primero'].widget.attrs['disabled'] = 'disabled'
 
-class Participante_form(ModelForm):
+class ParticipanteAlta_form(ModelForm):
     class Meta:
         model  = Participante
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
+        varibale    = kwargs.pop('initial')
+        penca       = Penca.objects.get(id=varibale['pk'])
+        torneo_hijo = Torneo.objects.create(nombre=penca.torneo.nombre,fecha=penca.torneo.fecha,fase=penca.torneo.fase,cntequipos=penca.torneo.cntequipos,grupos=penca.torneo.grupos,grupos_mod=penca.torneo.grupos_mod,clasificanXgrupo=penca.torneo.clasificanXgrupo,torneoPadre=penca.torneo)
+        #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
+        super(ParticipanteAlta_form, self).__init__(*args, **kwargs)    
+        self.fields['penca'].initial = penca
+
+        self.fields['torneo_hijo'].initial = torneo_hijo
+
+class ParticipanteUpd_form(ModelForm):
+    class Meta:
+        model  = Participante
+        fields = '__all__'
+    
     def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
 
         varibale = kwargs.pop('initial')
 
         penca = Penca.objects.get(id=varibale['pk'])
-        torneo_hijo = Torneo.objects.create(nombre=penca.torneo.nombre,fecha=penca.torneo.fecha,fase=penca.torneo.fase,cntequipos=penca.torneo.cntequipos,grupos=penca.torneo.grupos,grupos_mod=penca.torneo.grupos_mod,clasificanXgrupo=penca.torneo.clasificanXgrupo,torneoPadre=penca.torneo)
 
         print('penca ===>>>',penca)
         #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
-        super(Participante_form, self).__init__(*args, **kwargs)    
-        self.fields['penca'].initial = penca
-
-        self.fields['torneo_hijo'].initial = torneo_hijo
+        super(ParticipanteUpd_form, self).__init__(*args, **kwargs)    
+        self.fields['penca'].initial = penca  
 
 class Equipo_form(ModelForm):
 
@@ -122,9 +145,9 @@ class Partido_Form(ModelForm):
 
     class Meta:
         model  = Partido
-        fields = '__all__'
+        fields = ['torneo', 'fecha', 'local', 'visitante', 'score_local', 'score_visitante']
         widgets={'fecha':DateTimeInput()}
-
+        
     def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
         torneo = Torneo.objects.get(id=kwargs.pop('pk')) 
         
@@ -134,13 +157,22 @@ class Partido_Form(ModelForm):
         #filtraEqupo trae los equipos disponibles para clasificar al torneo
         self.fields['torneo'].initial = torneo 
         #carga toreo que viene por url 
-       # self.fields['torneo'].widget.attrs['disabled'] = 'disabled'
+        #self.fields['torneo'].widget.attrs['disabled'] = 'disabled'
         #hace que el field no se puedea modificar
-
-        self.fields['local'].queryset = Equipo.objects.filter(id__in=equipos)
-        self.fields['visitante'].queryset = Equipo.objects.filter(id__in=equipos)
+        self.fields['torneo'].queryset      = Torneo.objects.filter(id=torneo.pk) 
+        self.fields['local'].queryset       = Equipo.objects.filter(id__in=equipos)
+        self.fields['visitante'].queryset   = Equipo.objects.filter(id__in=equipos)
         
         #queryset le indica que tiene que ejecutrar el filtro que se asigna
+
+class PartidoUpd_Form(ModelForm):
+
+    class Meta:
+        model  = Partido
+        fields = ['torneo','fecha', 'local', 'visitante', 'score_local', 'score_visitante', 'resultado']
+        widgets={'fecha':DateTimeInput()}
+        
+
 
 class Clasificado_form(forms.ModelForm):
     class Meta:
