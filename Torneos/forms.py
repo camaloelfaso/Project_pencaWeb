@@ -62,7 +62,8 @@ class Penca_form(ModelForm):
         administrador = User.objects.get(id=varibale['pk'])
         #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
         super(Penca_form, self).__init__(*args, **kwargs)    
-        self.fields['administrador'].initial = administrador      
+        self.fields['administrador'].initial = administrador  
+        self.fields['torneo'].queryset       = Torneo.objects.filter(torneoPadre=None)    
 
 class PencaUpd_form(ModelForm):
     class Meta:
@@ -88,17 +89,17 @@ class PencaConfig_form(ModelForm):
         penca = Penca.objects.get(id=varibale['pk'])
         print('penca ==>>>',penca)
         super(PencaUpd_form, self).__init__(*args, **kwargs)  
-        self.fields['penca'].widget.attrs['disabled'] = 'disabled'        
-        self.fields['torneo'].widget.attrs['disabled'] = 'disabled'
-        self.fields['nombre'].widget.attrs['disabled'] = 'disabled'
-        self.fields['fecha'].widget.attrs['disabled'] = 'disabled'
-        self.fields['administrador'].widget.attrs['disabled'] = 'disabled'
-        self.fields['buy_in'].widget.attrs['disabled'] = 'disabled'
-        self.fields['pts_ganador'].widget.attrs['disabled'] = 'disabled'
-        self.fields['pts_pasafase'].widget.attrs['disabled'] = 'disabled'
-        self.fields['pts_terycuar'].widget.attrs['disabled'] = 'disabled'
-        self.fields['pts_segundo'].widget.attrs['disabled'] = 'disabled'
-        self.fields['pts_primero'].widget.attrs['disabled'] = 'disabled'
+        self.fields['penca'].widget.attrs['disabled']           = 'disabled'        
+        self.fields['torneo'].widget.attrs['disabled']          = 'disabled'
+        self.fields['nombre'].widget.attrs['disabled']          = 'disabled'
+        self.fields['fecha'].widget.attrs['disabled']           = 'disabled'
+        self.fields['administrador'].widget.attrs['disabled']   = 'disabled'
+        self.fields['buy_in'].widget.attrs['disabled']          = 'disabled'
+        self.fields['pts_ganador'].widget.attrs['disabled']     = 'disabled'
+        self.fields['pts_pasafase'].widget.attrs['disabled']    = 'disabled'
+        self.fields['pts_terycuar'].widget.attrs['disabled']    = 'disabled'
+        self.fields['pts_segundo'].widget.attrs['disabled']     = 'disabled'
+        self.fields['pts_primero'].widget.attrs['disabled']     = 'disabled'
 
 class ParticipanteAlta_form(ModelForm):
     class Meta:
@@ -106,20 +107,23 @@ class ParticipanteAlta_form(ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
-        varibale    = kwargs.pop('initial')
-        penca       = Penca.objects.get(id=varibale['pk'])
-        torneo_hijo = Torneo.objects.create(nombre=penca.torneo.nombre,fecha=penca.torneo.fecha,fase=penca.torneo.fase,cntequipos=penca.torneo.cntequipos,grupos=penca.torneo.grupos,grupos_mod=penca.torneo.grupos_mod,clasificanXgrupo=penca.torneo.clasificanXgrupo,torneoPadre=penca.torneo)
+
+        varibale = kwargs.pop('initial')
+
+        penca = Penca.objects.get(id=varibale['pk'])
+        #torneo_hijo = Torneo.objects.update_or_create(nombre=penca.torneo.nombre,fecha=penca.torneo.fecha,fase=penca.torneo.fase,cntequipos=penca.torneo.cntequipos,grupos=penca.torneo.grupos,grupos_mod=penca.torneo.grupos_mod,clasificanXgrupo=penca.torneo.clasificanXgrupo,torneoPadre=penca.torneo)
+
+        print('penca ===>>>',penca)
         #super() carga el form con los valores por defecto. por eso torneo se carga antes de llamar a super
         super(ParticipanteAlta_form, self).__init__(*args, **kwargs)    
         self.fields['penca'].initial = penca
 
-        self.fields['torneo_hijo'].initial = torneo_hijo
+        self.fields['torneo_hijo'].queryset = Torneo.objects.filter(id=penca.torneo.pk)
 
 class ParticipanteUpd_form(ModelForm):
     class Meta:
         model  = Participante
         fields = '__all__'
-    
     def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
 
         varibale = kwargs.pop('initial')
@@ -252,7 +256,8 @@ class ListaPartido_form(forms.ModelForm):
     class Meta:
         model  = Torneo
         fields = '__all__'
-
+        widgets={'fecha':DateTimeInput()}
+        
     def __init__(self, *args, **kwargs): #permite jugar con los valoer iniciales del FORM
         #print('kwargs ======>>>>>', kwargs)
         #print('kwargs ======>>>>>', kwargs.get('initial'))

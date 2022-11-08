@@ -69,7 +69,7 @@ class Torneo(models.Model):
     torneoPadre      = models.ForeignKey('self',on_delete=models.CASCADE, null=True, blank=True, related_name='Torneo_padre')
 
     def __str__(self):
-        texto = self.nombre + " - " + self.fase     
+        texto = str(int(self.pk)) + " - " + self.nombre + " - " + self.fase     
         return texto
 
 class Grupo(models.Model):

@@ -1,15 +1,16 @@
 {% extends 'torneos/main.html' %}
 
 {% block content %}
-
-
- 
+    <div class="header-bar">
+        <h2 style="color:#fefefe;">Torneos dicrectores</h2>
+    </div>
     <div id="buscador_alta" >
         <form method="GET" style="margin-top: 20px;display: flex;">
             <input type="text" name="objeto_buscado" value="{{search_input}}">
             <input class="button" type="submit" value="Buscar">
         </form>
         <a id="add_link" href="{% url 'torneo_alta'%}">&#x2b;</a>
+        
     </div>
 
     <div class="tareas_conjunto_items">

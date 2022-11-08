@@ -4,7 +4,7 @@
     <div class="header-bar">
         <a href="{% url 'home' %}">&#8592;Volver</a>
         <div id="header_links">
-            <a id="add_link" href="{% url 'penca_upd' penca.id %}" style="color:#fefefe;"><h3>{{penca.nombre.upper}}</h3> </a>
+            <a id="add_link" href="{% url 'penca_upd' penca.id %}" style="color:#fefefe;"><h3>{{penca.torneo.nombre.upper}}</h3> </a>
         </div>
     </div>
 {% endblock contentHeader %}
