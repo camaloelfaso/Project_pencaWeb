@@ -208,3 +208,59 @@ ul, ol {
     width: 70%;
     background-color: #f1f1f1;
 }
+
+
+
+
+
+
+a:hover {
+    text-decoration: underline; 
+}
+
+.wrap {
+    width: 90%;
+    max-width: 1000px;
+    margin: auto; 
+}
+  
+.main {
+    width: 100%;
+    min-height: 1500px; 
+}
+  
+.seccionToggle {
+    display: none;
+    height: calc(100vh - 20px);
+    background-color: #f1f1f1;
+    color: #001F3F;
+    padding: 10px 0;
+    text-align: left; 
+}   
+    .seccionToggle button {
+        background: none;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 20px 40px;
+        display: inline-block;
+        border: 5px solid #001F3F;
+        transition: 0.3s all ease; 
+    }
+    .seccionToggle button:hover {
+        border: 5px solid #0074D9;
+        color: #0074D9; 
+    }
+.btn-toggle {
+    height: 50px;
+    line-height: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    display: block;
+    text-align: center;
+    background-color: #f1f1f1; 
+}
+
+.btn-toggle:hover {
+    text-decoration: none; 
+}

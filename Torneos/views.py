@@ -483,21 +483,22 @@ class UpdPartido(LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs): 
         partido_aux                 = Partido.objects.get(id=self.kwargs.get('pk'))
-        goles_local                 = self.request.POST.get('goles_local')
-        goles_visitante             = self.request.POST.get('goles_visitante')
-        partido_aux.score_local     = goles_local
-        partido_aux.score_visitante = goles_visitante 
-        if goles_local > goles_visitante:
-            partido_aux.resultado = "L"
-        if goles_local < goles_visitante:
-            partido_aux.resultado = "V"
-        if goles_local == goles_visitante:
-            partido_aux.resultado = "E"
-        if goles_local is None or goles_visitante is None:
-            partido_aux.resultado = "P"
-        if Torneo.objects.get(id=partido_aux.torneo.pk).torneoPadre is None: # si es padre modifica_rankign True
-            partido_aux.modif_ranking = True
-        partido_aux.save()                 
+        if self.request.POST.get('goles_local').isnumeric() and self.request.POST.get('goles_visitante').isnumeric():
+            goles_local                 = self.request.POST.get('goles_local')
+            goles_visitante             = self.request.POST.get('goles_visitante')
+            partido_aux.score_local     = goles_local
+            partido_aux.score_visitante = goles_visitante 
+            if goles_local > goles_visitante:
+                partido_aux.resultado = "L"
+            if goles_local < goles_visitante:
+                partido_aux.resultado = "V"
+            if goles_local == goles_visitante:
+                partido_aux.resultado = "E"
+            if goles_local is None or goles_visitante is None:
+                partido_aux.resultado = "P"
+            if Torneo.objects.get(id=partido_aux.torneo.pk).torneoPadre is None: # si es padre modifica_rankign True
+                partido_aux.modif_ranking = True
+            partido_aux.save()                 
         return HttpResponseRedirect (reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})     )
 
 class DltPartido(LoginRequiredMixin, DeleteView):

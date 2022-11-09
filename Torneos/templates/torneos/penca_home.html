@@ -10,110 +10,106 @@
 {% endblock contentHeader %}
 
 {% block content %}
-<div class="tareas_conjunto_items">  
-    <table >
-        <tr>
-            <td>
-                <h4>Sistema de puntuación  </h4>
-            </td>  
-        </tr>
-        <tr>
-
-            <td>
-                
-            </td>
-            <td>
-                Puntos
-            </td>                    
-            <td>
-                
-            </td>
-            <td>
-                Puntos
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Ganador 
-            </td>
-            <td>
-                {{penca.pts_ganador}}
-            </td>            
-            <td>
-                Resultado exacto 
-            </td>                    
-            <td>
-                {{penca.pts_resultado}}
-            </td>            
-        </tr>
-        <tr>
-            <td>
-                Octavos 
-            </td>
-            <td>
-                {{penca.pts_pasafase}}
-            </td>            
-            <td>
-                3er y 4to
-            </td>                    
-            <td>
-                {{penca.pts_terycuar}}
-            </td>            
-        </tr>   
-        <tr>
-            <td>
-                Segundo 
-            </td>
-            <td>
-                {{penca.pts_segundo}}
-            </td>            
-            <td>
-                Campeon
-            </td>                    
-            <td>
-                {{penca.pts_primero}}
-            </td>            
-        </tr>                
-    </table>   
-</div>
-<div class="tareas_conjunto_items"> 
-        <div class="tareas_conjunto_items">     
-            <div class="tarea_item">
-                <div class="tarea_titulo">      
-                    <table >
-                        <tr>
-                            <td>
-                                <h2>Ranking de participantes </h2>
-                            </td>  
-                            <td></td><td></td><td></td><td></td><td></td>
-                            <td></td><td></td><td></td><td></td><td></td>    
-                            <td></td><td></td><td></td><td></td><td></td>
-                            <td></td><td></td><td></td><td></td><td></td>  
-                            <td>
-                                <a href="{% url 'torneo_home' torneohijo.id %}">
-                                    <h4>Fixture torneo  &#x2b; </h4> 
-                                </a>
-                            </td>
-                        </tr>                                      
-                    </table>
-                   
-                </div>
-            </div>    
-            <div class="tareas_conjunto_items">      
-                {% for participante in participantes %}      
+    <div class="tareas_conjunto_items">
+        <a href="#" id="btn-toggle-PencaHome" class="btn-toggle">ver sistema de puntuación</a>
+        <div class="tareas_conjunto_items" id="penca_sist_puntos" style="display:none;">  
+            <table >
+                <tr>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        Puntos
+                    </td>                    
+                    <td>
+                        
+                    </td>
+                    <td>
+                        Puntos
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Ganador 
+                    </td>
+                    <td>
+                        {{penca.pts_ganador}}
+                    </td>            
+                    <td>
+                        Resultado exacto 
+                    </td>                    
+                    <td>
+                        {{penca.pts_resultado}}
+                    </td>            
+                </tr>
+                <tr>
+                    <td>
+                        Octavos 
+                    </td>
+                    <td>
+                        {{penca.pts_pasafase}}
+                    </td>            
+                    <td>
+                        3er y 4to
+                    </td>                    
+                    <td>
+                        {{penca.pts_terycuar}}
+                    </td>            
+                </tr>   
+                <tr>
+                    <td>
+                        Segundo 
+                    </td>
+                    <td>
+                        {{penca.pts_segundo}}
+                    </td>            
+                    <td>
+                        Campeon
+                    </td>                    
+                    <td>
+                        {{penca.pts_primero}}
+                    </td>            
+                </tr>                
+            </table>   
+        </div>
+        <div class="tareas_conjunto_items" id="penca_Ranking"> 
+                <div class="tareas_conjunto_items">     
                     <div class="tarea_item">
-                        <div class="tarea_titulo">
-                            <p  >
-                                {{participante.usuario}}
-                                {{participante.puntos}}  |  {{participante.pts_ganador}}  |  {{participante.pts_resultado}}  |  {{participante.pts_pasafase}}  |  
-                                {{participante.pts_terycuar}}  |  {{participante.pts_segundo}}  |  {{participante.pts_primero}}   
-                            </p>        
-                        </div>                       
-                    </div>         
-                {% endfor %}   
-            </div>
-        </div>  
-</div>
-
+                        <div class="tarea_titulo">      
+                            <table >
+                                <tr>
+                                    <td>
+                                        <h2>Ranking de participantes </h2>
+                                    </td>  
+                                    <td></td><td></td><td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td><td></td>    
+                                    <td></td><td></td><td></td><td></td><td></td>
+                                    <td></td><td></td><td></td><td></td><td></td>  
+                                    <td>
+                                        <a href="{% url 'torneo_home' torneohijo.id %}">
+                                            <h4>Fixture torneo  &#x2b; </h4> 
+                                        </a>
+                                    </td>
+                                </tr>                                      
+                            </table>
+                        
+                        </div>
+                    </div>    
+                    <div class="tareas_conjunto_items">      
+                        {% for participante in participantes %}      
+                            <div class="tarea_item">
+                                <div class="tarea_titulo">
+                                    <p  >
+                                        {{participante.usuario}}
+                                        {{participante.puntos}}  |  {{participante.pts_ganador}}  |  {{participante.pts_resultado}}  |  {{participante.pts_pasafase}}  |  
+                                        {{participante.pts_terycuar}}  |  {{participante.pts_segundo}}  |  {{participante.pts_primero}}   
+                                    </p>        
+                                </div>                       
+                            </div>         
+                        {% endfor %}   
+                    </div>
+                </div>  
+        </div>
+    </div>
 {% endblock content %}
 

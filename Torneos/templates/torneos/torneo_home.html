@@ -1,5 +1,4 @@
 {% extends 'torneos/main.html' %}
-
 {% block contentHeader %}
     <div class="header-bar">
         <div id="header_links">
@@ -9,59 +8,16 @@
 {% endblock contentHeader %}
 
 {% block content %} 
-
-    <div class="tareas_conjunto_items"> 
-        {{torneo.fase}}  
-        
-        {% if equipos_grupo %}
-            {% if torneo.fase == "Grupos" or torneo.fase == "Pendiente" %} 
-                <div class="tareas_conjunto_items">     
-                    {% for grupo in equipos_grupo %}  
-                        <div class="tareas_conjunto_items">      
-                            {%for clasificado in grupo%}
-                                {% if forloop.first %}
-                                    <div class="tarea_item">
-                                        <div class="tarea_titulo">                                            
-                                            <h2>Grupo {{clasificado}}  </h2>
-                                            <p>
-                                                <h6>    Pts  |  PJ  |  PG  |  PE  |  PP  |  GF  |  GC  |  GD</h6>
-                                            </p>        
-                                        </div>
-                                    </div>        
-                                {%else%}    
-                                    <div class="tarea_item">
-                                        <div class="tarea_titulo" style="margin-right: 20px;">
-                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;margin-right:30px;"></div>                                        
-                                            <p  style="margin-left:0px">
-                                                {{clasificado.equipo.nombre}}
-                                                {{clasificado.puntos}}  |  {{clasificado.jugados}}  |  {{clasificado.ganados}}  |  {{clasificado.empatados}}  |  
-                                                {{clasificado.perdidos}}  |  {{clasificado.goles_F}}  |  {{clasificado.goles_C}}  |  {{clasificado.goles_D}}   
-                                            </p>        
-                                        </div>                       
-                                    </div>         
-                                {%endif%}
-                            {% endfor %}   
-                        </div>
-                    {% endfor %}  
-                </div>
-            {% endif %}
-        {%else%}
-            <div id="buscador_alta">         
-                <a id="add_link" href="{% url 'clasificados' torneo.id %}"><h2 style="color:black">Grupos</h2></a>            
-             </div>                
-        {% endif %}
+<div class="tareas_conjunto_items">
+    <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Fixture</a> 
+    <div class="tareas_conjunto_items" id="section-Fixture"  style="display: none ;"> 
         {% if partidos %}
             {% if torneo.fase == "Pendiente" and Principal %}
                 <div id="buscador_alta">
                     <h2>Partidos</h2>   
                     <a id="add_link" href="{% url 'partido_alta' torneo.id %}">&#x2b;</a>     
                 </div>
-            {% else %}
-                <div id="buscador_alta">
-                    <h2>Partidos</h2>   
-                </div>
-            {% endif %}
-            
+            {% endif %}  
             <div class="tareas_conjunto_items">
                 {% for fase in fixture %} 
                     {% for partido in fase %}    
@@ -79,7 +35,6 @@
                             {%else%}    
                                 <h2>Grupo {{partido}} </h2>
                             {% endif %}
-
                         {%else%}    
                             <div class="tareas_conjunto_items"> 
                                 {%if Principal %}
@@ -206,11 +161,56 @@
             </div>  
         {% else %}
             <div id="buscador_alta">
-                 
+                
                 <a id="add_link" href="{% url 'partidos' torneo.id %}"><h2 style="color:black">Partidos</h2>  </a>     
             </div>
         {% endif %}
-    </div>
+    </div>    
+    <div class="main" id="section-Grupos">
+        {% if equipos_grupo %}
+            {% if torneo.fase == "Grupos" or torneo.fase == "Pendiente" %} 
+                <div class="tareas_conjunto_items">     
+                    {% for grupo in equipos_grupo %}  
+                        <div class="tareas_conjunto_items">      
+                            {%for clasificado in grupo%}
+                                {% if forloop.first %}
+                                    <div class="tarea_item">
+                                        <div class="tarea_titulo">                                            
+                                            <h2>Grupo {{clasificado}}  </h2>
+                                            <p>
+                                                <h6>    Pts  |  PJ  |  PG  |  PE  |  PP  |  GF  |  GC  |  GD</h6>
+                                            </p>        
+                                        </div>
+                                    </div>        
+                                {%else%}    
+                                    <div class="tarea_item">
+                                        <div class="tarea_titulo" style="margin-right: 20px;">
+                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;margin-right:30px;"></div>                                        
+                                            <p  style="margin-left:0px">
+                                                {{clasificado.equipo.nombre}}
+                                                {{clasificado.puntos}}  |  {{clasificado.jugados}}  |  {{clasificado.ganados}}  |  {{clasificado.empatados}}  |  
+                                                {{clasificado.perdidos}}  |  {{clasificado.goles_F}}  |  {{clasificado.goles_C}}  |  {{clasificado.goles_D}}   
+                                            </p>        
+                                        </div>                       
+                                    </div>         
+                                {%endif%}
+                            {% endfor %}   
+                        </div>
+                    {% endfor %}  
+                </div>
+            {% endif %}
+        {%else%}
+            <div id="buscador_alta">         
+                <a id="add_link" href="{% url 'clasificados' torneo.id %}"><h2 style="color:black">Grupos</h2></a>            
+                </div>                
+        {% endif %}
+            
+    
+    </div>  
+</div>
+
+
+    
 
       
 
