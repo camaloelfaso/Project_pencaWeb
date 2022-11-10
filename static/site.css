@@ -63,6 +63,7 @@ a,p{
     color: #4b5156;
     margin-left: 10px;
     margin-right: 10px;
+    grid-template-columns: auto auto auto;
 }
 
 .tarea_completa_icono{
@@ -264,3 +265,18 @@ a:hover {
 .btn-toggle:hover {
     text-decoration: none; 
 }
+
+#contenedor-card {
+     display:inline-grid;
+     grid-template-columns: auto auto auto;
+     padding:30px;
+     border:1px solid blue;
+   }
+   
+#card {
+   margin: 10px;
+   width:330px;
+   height:200px;
+   background:red;
+   margin:50px;
+   }

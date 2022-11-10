@@ -31,7 +31,7 @@
                         {%if partido.score_local is None %}   
                             <input type="integer" size="1" name="goles_local" value=" ">  
                         {%else%}
-                            <input type="integer" size="1" name="goles_local" value="{{goles_local}}">
+                            <input type="integer" size="1" name="goles_local" value="{{partido.score_local}}">
                         {%endif%}
                         )
                         VS 
@@ -46,7 +46,9 @@
                     </h2>                
                 {%endif%}
             </div>
-            <input class="button" type="submit" value="Ingresar">
+            {%if not partido.modif_ranking %}
+                <input class="button" type="submit" value="Ingresar">
+            {%endif%}
         </form>     
         
     </div>

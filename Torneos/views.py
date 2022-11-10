@@ -53,10 +53,7 @@ class PencaHome(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
         context = super().get_context_data(**kwargs) 
         for participante in  Participante.objects.filter(penca = self.object).filter(usuario=self.request.user):
-            print('participante ===>>>', participante.usuario)
-            print('torneo_hijo  ===>>>', participante.torneo_hijo)
             context['torneohijo'] = participante.torneo_hijo
-       #context['torneohijo']    = Torneo.objects.filter(id=participante.torneo_hijo)
         context['participantes'] = Participante.objects.filter(penca = self.object)
         return context   
 
@@ -78,7 +75,7 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
         context                  = super().get_context_data(**kwargs)
         context['torneo']        = self.object
         actualizaResultados(self.object)
-        actualiza_ranking(self.object)
+        actualiza_rankingEquipos(self.object)
         Playoff_asigna_equipos(self.object)
         context['equipos_grupo'] = Arma_Grupos(self.object)
         context['partidos']      = torneo_fixture(self.object)
@@ -153,7 +150,7 @@ class AltaParticipante(LoginRequiredMixin, CreateView):
         return super(AltaParticipante, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('penca_home', kwargs={'pk': self.kwargs['penca_id']})            
+        return reverse_lazy('home')            
 
 class UpdParticipante(LoginRequiredMixin, UpdateView):
     model           = Participante
@@ -232,13 +229,11 @@ class PencaConfig(LoginRequiredMixin,DetailView):
         kwargs.update({
                         'pk': self.kwargs['pk'],
                         })
-        print('get kwargs', kwargs)
         return kwargs
 
     def get_initial(self):
         initial = super(PencaHome, self).get_initial()
         initial.update({ 'pk' : self.kwargs.get('pk'),} )
-        print('initial ', initial)
         return initial
 
     def get_context_data(self, **kwargs): #genera un filtro por usuario, para privacidad de datos
@@ -247,6 +242,7 @@ class PencaConfig(LoginRequiredMixin,DetailView):
         context['participantes'] = Participante.objects.filter(penca = self.object)
         return context     
 
+    
 
 ############################################################## Equipo
 
@@ -392,7 +388,6 @@ def AltaTorneo_view(request):
                         'form': form,
                       }  
     if request.POST and form.is_valid(): 
-        print(request.POST) 
         form.full_clean()  
         torneo = form.save()
         torneo.save()
@@ -402,13 +397,10 @@ def AltaTorneo_view(request):
 class UpdTorneo(LoginRequiredMixin, UpdateView):
     model           = Torneo
     form_class      = Torneo_Form
-    
-    
     template_name   =  "torneos/ABM_torneos/torneo_alta.html"
     success_url     = reverse_lazy('torneo_home')
 
     def get_success_url(self):
-        print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['pk']})  
 
 class DltTorneo(LoginRequiredMixin, DeleteView):
@@ -464,7 +456,6 @@ class AltaPartido(LoginRequiredMixin, CreateView):
         return super(AltaPartido, self).form_valid(form)
 
     def get_success_url(self):
-       # print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})    
 
 class UpdPartido(LoginRequiredMixin, DetailView):
@@ -482,10 +473,10 @@ class UpdPartido(LoginRequiredMixin, DetailView):
         return context     
 
     def post(self, request, *args, **kwargs): 
-        partido_aux                 = Partido.objects.get(id=self.kwargs.get('pk'))
-        if self.request.POST.get('goles_local').isnumeric() and self.request.POST.get('goles_visitante').isnumeric():
-            goles_local                 = self.request.POST.get('goles_local')
-            goles_visitante             = self.request.POST.get('goles_visitante')
+        partido_aux = Partido.objects.get(id=self.kwargs.get('pk'))
+        if self.request.POST.get('goles_local') != "" and self.request.POST.get('goles_visitante') != "":
+            goles_local                 = int(self.request.POST.get('goles_local'))
+            goles_visitante             = int(self.request.POST.get('goles_visitante'))        
             partido_aux.score_local     = goles_local
             partido_aux.score_visitante = goles_visitante 
             if goles_local > goles_visitante:
@@ -508,7 +499,6 @@ class DltPartido(LoginRequiredMixin, DeleteView):
     success_url     = reverse_lazy('partidos')
 
     def get_success_url(self):
-        print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['torneo_id']})  
 
 class ListaPartido(LoginRequiredMixin, ListView):
@@ -553,7 +543,6 @@ class crea_Fixture(LoginRequiredMixin, DetailView):
     success_url         = reverse_lazy('torneo_home')
 
     def get_form_kwargs(self):
-        print('get_form_kwargs ======>>>>>')    
         kwargs = super(crea_Fixture, self).get_form_kwargs()
         kwargs.update({
             'pk': self.kwargs['pk'],
@@ -573,7 +562,6 @@ class crea_Fixture(LoginRequiredMixin, DetailView):
         return context 
 
     def get_success_url(self):
-        print('get_success_url =======>>>>>>> ',self.kwargs)
         return reverse_lazy('torneo_home', kwargs={'pk': self.kwargs['pk']})        
 
     def form_valid(self, form):
@@ -611,9 +599,6 @@ class crea_Clasificados(LoginRequiredMixin, TemplateView):
         torneo = Torneo.objects.get(id=self.kwargs.get('pk'))
         for linea in archivo_lineas:
             valor = linea.split(',')
-            #print ('torneo ====>>>>',torneo)
-            #print ('valor[0] ====>>>>',valor[0])
-            #print ('valor[1] ====>>>>',valor[1])
             #busco que exista el equipo en equipos, sino existo lo creo.
             if valor[0]:
                 if not Equipo.objects.filter(nombre=valor[0]):
@@ -623,11 +608,8 @@ class crea_Clasificados(LoginRequiredMixin, TemplateView):
                 if not Grupo.objects.filter(toreno=torneo).filter(nombre=valor[1]):
                     Grupo.objects.create(toreno=torneo,nombre=valor[1])
                 grupo = Grupo.objects.filter(toreno=torneo).get(nombre=valor[1])            
-            #print ('Equipo ====>>>>',equipo)
-            #print ('grupo ====>>>>',grupo)
             Clasificado.objects.update_or_create(torneo=torneo,equipo=equipo,grupo=grupo)
-            #print ('clasificado creado====>>>>')
-
+            
         return HttpResponseRedirect (reverse_lazy('clasificados', kwargs={'torneo_id': kwargs['pk']})     )
 
 ############################################################## Metodos
@@ -645,7 +627,6 @@ def Alta_fixture(torneo):
         grupo.append(grupo_equipos)
         grupo_equipos = []
         x += 1
-        #print('GRUPO =============>>>>>>>>>>', grupo)
     
     #creo partidos fase de grupos
     x = 0
@@ -748,7 +729,7 @@ def Alta_fixture(torneo):
             playoff -= 1
         llave_inicio += 1    
                   
-def actualiza_ranking(torneo):
+def actualiza_rankingEquipos(torneo):
     #desde el torneo, actualizo el ranking de los clasificados, si tienen partidos con resultado diferente a Pendiente.
     if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
         for grupo in Grupo.objects.filter(toreno=torneo):            
@@ -815,7 +796,6 @@ def torneo_fixture(torneo):
     #cargo encuentros fase grupos
     for grupo in Grupo.objects.filter(toreno=torneo):
         partidos_grupo.append(grupo.nombre)
-#        print('grupos =====>>>>>>',grupo.nombre)
         
         for partido in Partido.objects.filter(torneo=torneo):
             etapa = partido.codigo.split('_',1) 
@@ -885,7 +865,6 @@ def Playoff_asigna_equipos(torneo):
         playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
         while playoff >=0:
             codigo_playoff = str(int(playoff))+"_"
-            print(str(int(playoff)))
             if playoff > 2: #en SEMIFINAL cambia la logica
                 for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
                     codigo_partido = partido.codigo.split(" ",1)     
@@ -991,12 +970,34 @@ def clonaTorneo(torneo_hijo, torneo):
   
 def actualizaResultados(torneo):
     if torneo.torneoPadre is None: # si no tiene padre es torneo principal
+        #primero actualizo todos los parti
         penca = Penca.objects.get(torneo=torneo)
         for partido in Partido.objects.filter(torneo=torneo).filter(modif_ranking=True):# recorro los partidos que tienen modif_ranking en true y pertenecen al torneo padre
             for participante in Participante.objects.filter(penca=penca):
+                puntos = 0
+                ganador = 0
+                resultado = 0
+                pasafase = 0
+                terycuar = 0
+                segundo = 0
+                primero = 0
+
                 for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo):
-                    parti_partido.score_local     = partido.score_local
-                    parti_partido.score_visitante = partido.score_visitante
-                    parti_partido.resultado       = partido.resultado
+                    #parti_partido.score_local     = partido.score_local
+                    #parti_partido.score_visitante = partido.score_visitante
+                    #parti_partido.resultado       = partido.resultado
                     parti_partido.modif_ranking   = partido.modif_ranking
                     parti_partido.save() 
+                    if parti_partido.resultado == partido.resultado:
+                        ganador += penca.pts_ganador
+                    if parti_partido.score_local == partido.score_local and parti_partido.score_visitante == partido.score_visitante:    
+                        resultado += penca.pts_resultado
+
+                participante.puntos         = ganador + resultado + pasafase + terycuar + segundo + primero  
+                participante.pts_ganador    = ganador
+                participante.pts_resultado  = resultado
+                participante.pts_pasafase   = pasafase
+                participante.pts_terycuar   = terycuar
+                participante.pts_segundo    = segundo
+                participante.pts_primero    = primero
+                participante.save()        

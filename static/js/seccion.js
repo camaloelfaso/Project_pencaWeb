@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	var estado = false;
 	$('#btn-toggle-fixture').on('click',function(){
-		$('#section-Fixture').slideToggle();
+		$('#section-Grupos').slideToggle();
 		if (estado == true) {
 			$(this).text("Ver Fixture");
             $('#section-Grupos').slideToggle();
@@ -11,7 +11,7 @@ $(document).ready(function(){
 			estado = false;
 		} else {
 			$(this).text("Ver Grupos");
-            $('#section-Grupos').slideToggle();
+            $('#section-Fixture').slideToggle();
 			$('body').css({
 				"overflow": "auto"
 			});

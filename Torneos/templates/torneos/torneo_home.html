@@ -9,8 +9,8 @@
 
 {% block content %} 
 <div class="tareas_conjunto_items">
-    <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Fixture</a> 
-    <div class="tareas_conjunto_items" id="section-Fixture"  style="display: none ;"> 
+    <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Grupos</a> 
+    <div class="tareas_conjunto_items" id="section-Fixture" > 
         {% if partidos %}
             {% if torneo.fase == "Pendiente" and Principal %}
                 <div id="buscador_alta">
@@ -47,7 +47,7 @@
                                             {%endif%}
                                             {% if partido.local and partido.visitante %}
                                                 <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} 
+                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  
                                                         {{partido.local.nombre}}
                                                         ( 
                                                         {%if partido.score_local is None %}   
@@ -90,7 +90,7 @@
                                             {%if partido.modif_ranking %}
                                                 {% if partido.local and partido.visitante %}
                                                     <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                        {{partido.local.nombre}} 
+                                                       
                                                         {{partido.local.nombre}}
                                                         ( 
                                                         {%if partido.score_local is None %}   
@@ -108,6 +108,7 @@
                                                         {%endif%}
                                                         ) 
                                                         {{partido.visitante.nombre}} 
+                                                    
                                                     <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                 {% elif partido.local and not partido.visitante %}
                                                     <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
@@ -166,7 +167,7 @@
             </div>
         {% endif %}
     </div>    
-    <div class="main" id="section-Grupos">
+    <div class="main" id="section-Grupos" style="display: none ;">
         {% if equipos_grupo %}
             {% if torneo.fase == "Grupos" or torneo.fase == "Pendiente" %} 
                 <div class="tareas_conjunto_items">     

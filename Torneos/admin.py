@@ -7,7 +7,8 @@ class EquipoArmin(admin.ModelAdmin):
     list_display = ('nombre','bandera')
 class TorneoArmin(admin.ModelAdmin):
     list_display = ('nombre', 'torneoPadre', 'fecha')    
-
+class ParticipanteArmin(admin.ModelAdmin):
+    list_display = ('penca','torneo_hijo','usuario')
 admin.site.register(Partido, PartidoArmin)
 admin.site.register(Equipo, EquipoArmin)
 
@@ -15,4 +16,4 @@ admin.site.register(Torneo, TorneoArmin)
 admin.site.register(Clasificado)
 admin.site.register(Grupo)
 admin.site.register(Penca)
-admin.site.register(Participante)
+admin.site.register(Participante, ParticipanteArmin)
