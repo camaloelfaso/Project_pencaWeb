@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta http="equiv="X-UA-Compatible" content="IE=edge">
-        <title>TO DO LIST</title>
+        <title>Penca Web</title>
         <meta name="description" content="">
         <meta name="viewport" content="widht-device-with, initial-scale-=1">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,26 +59,39 @@
             {% block contentHeader %}
 
             {% endblock contentHeader %}
-
+            {%if user.is_staff%}
+                <div class="header-bar-mundial" style="padding: 0px;">
+                    <div id="header_links">
+                        <nav> <!-- Aqui estamos iniciando la nueva etiqueta nav -->
+                            <ul class="nav">
+                                <li>
+                                    <a href="{% url 'home'%}">Inicio</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'torneos' %}">Torneos</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'equipos' %}">Equipos</a>
+                                </li>
+                            </ul>
+                        </nav><!-- Aqui estamos cerrando la nueva etiqueta nav -->
+                    </div>  
+                </div>
+            {%else%}
             <div class="header-bar-mundial" style="padding: 0px;">
-                
                 <div id="header_links">
                     <nav> <!-- Aqui estamos iniciando la nueva etiqueta nav -->
                         <ul class="nav">
                             <li>
                                 <a href="{% url 'home'%}">Inicio</a>
                             </li>
-                            <li>
-                                <a href="{% url 'torneos' %}">Torneos</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'equipos' %}">Equipos</a>
                             </li>
                         </ul>
                     </nav><!-- Aqui estamos cerrando la nueva etiqueta nav -->
-                </div>
+                </div>  
             </div>
-            
+
+            {%endif%}  
             {% block content %}
 
             {% endblock content %}

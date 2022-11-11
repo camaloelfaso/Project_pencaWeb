@@ -30,7 +30,7 @@
                 </tr>
                 <tr>
                     <td>
-                        Ganador 
+                        Resultado 
                     </td>
                     <td>
                         {{penca.pts_ganador}}
@@ -92,18 +92,29 @@
                                     </td>
                                 </tr>                                      
                             </table>
-                        
                         </div>
                     </div>    
                     <div class="tareas_conjunto_items">      
                         {% for participante in participantes %}      
                             <div class="tarea_item">
-                                <div class="tarea_titulo">
-                                    <p  >
-                                        {{participante.usuario}}
-                                        {{participante.puntos}}  |  {{participante.pts_ganador}}  |  {{participante.pts_resultado}}  |  {{participante.pts_pasafase}}  |  
-                                        {{participante.pts_terycuar}}  |  {{participante.pts_segundo}}  |  {{participante.pts_primero}}   
-                                    </p>        
+                                <div class="tarea_titulo" style="align-items: center;">
+                                    
+                                    <table style="align-items: center;">
+                                        <tr>
+                                            <td>{{participante.usuario}}  </td>                                            
+                                            <td> | Pts</td>
+                                            <td> | Resultado</td>
+                                            <td> | Resultado Exacto</td>
+                                        </tr>
+                                        <tr>
+                                            
+                                            <td></td>                                            
+                                            <td> | {{participante.puntos}}</td>
+                                            <td> | {{participante.pts_ganador}}</td>
+                                            <td> | {{participante.pts_resultado}}</td>
+                                        </tr>
+                                    </table>
+      
                                 </div>                       
                             </div>         
                         {% endfor %}   

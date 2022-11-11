@@ -176,4 +176,4 @@ class Participante(models.Model):
     def __str__(self):
         return self.usuario.first_name + " - " + self.penca.nombre
     class Meta:
-        ordering = ['usuario','-puntos']
+        ordering = ['-puntos', 'usuario', '-pts_resultado']

@@ -1,23 +1,23 @@
 {% extends 'torneos/main.html' %}
 
 {% block content %}
-
-    <div class="tareas_conjunto_items">
-        <div class="tarea_item">
-            <h2>Administrar Pencas</h2>
-            <a id="add_link" href="{% url 'penca_alta' %}">&#x2b;</a>
-        </div>
-        {% for penca in pencas %}
+    {%if user.is_staff%}
+        <div class="tareas_conjunto_items">
             <div class="tarea_item">
-                <div class="tarea_titulo">
-                    <div class="tarea_completa_icono"></div>
-                    <a href="{% url 'penca_config' penca.id %}">{{penca.nombre}}</a>
-                </div>
-                <a class="link_delete" href="">&#215</a>              
-            </div>        
-        {% endfor %}   
-    </div>
-
+                <h2>Administrar Pencas</h2>
+                <a id="add_link" href="{% url 'penca_alta' %}">&#x2b;</a>
+            </div>
+            {% for penca in pencas %}
+                <div class="tarea_item">
+                    <div class="tarea_titulo">
+                        <div class="tarea_completa_icono"></div>
+                        <a href="{% url 'penca_config' penca.id %}">{{penca.nombre}}</a>
+                    </div>
+                    <a class="link_delete" href="">&#215</a>              
+                </div>        
+            {% endfor %}   
+        </div>
+    {%endif%}
 
 
     <div class="tareas_conjunto_items">

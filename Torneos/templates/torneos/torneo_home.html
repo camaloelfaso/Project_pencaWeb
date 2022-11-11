@@ -1,10 +1,20 @@
 {% extends 'torneos/main.html' %}
+{% load static %}
 {% block contentHeader %}
-    <div class="header-bar">
-        <div id="header_links">
-            <a id="add_link" href="{% url 'torneo_upd' torneo.id %}" style="color:#fefefe;"><h3>{{torneo.torneoPadre.nombre.upper}}</h3> </a>
-        </div>
-    </div>
+    {%if user.is_staff%}
+        <div class="header-bar">
+            
+                <div id="header_links">
+                    <a id="add_link" href="{% url 'torneo_upd' torneo.id %}" style="color:#fefefe;"><h3>{{torneo.torneoPadre.nombre.upper}}</h3> </a>
+                </div>
+        </div>        
+    {%else%}    
+        <div class="header-bar">
+            <div id="header_links">
+                <h3>{{torneo.torneoPadre.nombre.upper}}</h3>
+            </div>
+        </div>    
+    {%endif%}      
 {% endblock contentHeader %}
 
 {% block content %} 
@@ -122,7 +132,7 @@
                                             {%else%}
                                                 {% if partido.local and partido.visitante %}
                                                     <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} 
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> 
                                                             {{partido.local.nombre}}
                                                             ( 
                                                             {%if partido.score_local is None %}   
@@ -209,12 +219,6 @@
     
     </div>  
 </div>
-
-
-    
-
-      
-
 
 {% endblock content %}
 

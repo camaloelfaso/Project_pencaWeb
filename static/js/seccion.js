@@ -3,14 +3,14 @@ $(document).ready(function(){
 	$('#btn-toggle-fixture').on('click',function(){
 		$('#section-Grupos').slideToggle();
 		if (estado == true) {
-			$(this).text("Ver Fixture");
-            $('#section-Grupos').slideToggle();
+			$(this).text("Ver Grupos");
+            $('#section-Fixture').slideToggle();
 			$('body').css({
-				"overflow": "auto"
+				"overflow": "auto" 
 			});
 			estado = false;
 		} else {
-			$(this).text("Ver Grupos");
+			$(this).text("Ver Fixture");
             $('#section-Fixture').slideToggle();
 			$('body').css({
 				"overflow": "auto"
@@ -22,7 +22,7 @@ $(document).ready(function(){
 	$('#btn-toggle-PencaHome').on('click',function(){
 		$('#penca_sist_puntos').slideToggle();
 		if (estado == true) {
-			$(this).text("Ver sistema de puntuación");
+			$(this).text("Ver sistema de puntuación 4");
             $('#penca_Ranking').slideToggle();
 			$('body').css({
 				"overflow": "auto"

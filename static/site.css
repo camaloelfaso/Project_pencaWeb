@@ -245,7 +245,7 @@ a:hover {
         padding: 20px 40px;
         display: inline-block;
         border: 5px solid #001F3F;
-        transition: 0.3s all ease; 
+        transition: 0.3s all ease;  
     }
     .seccionToggle button:hover {
         border: 5px solid #0074D9;

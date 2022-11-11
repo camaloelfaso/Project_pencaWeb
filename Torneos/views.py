@@ -22,6 +22,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Equipo, Participante,Partido,Clasificado, Penca,Torneo, Grupo, User
 from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, ParticipanteAlta_form, ParticipanteUpd_form, Partido_Form, ListaPartido_form, PartidoUpd_Form, Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form, Fixture_form
 
+
+
 ############################################################## HOMES
 class HomeView(LoginRequiredMixin,TemplateView):
     context_object_name = "home_general"
@@ -31,7 +33,7 @@ class HomeView(LoginRequiredMixin,TemplateView):
         context = super().get_context_data(**kwargs) 
         context['pencas']        = Penca.objects.filter(administrador=self.request.user)    
         context['participantes'] = Participante.objects.filter(usuario=self.request.user)
-
+        context['usuario'] = self.request.user
         return context
 
 class PencaHome(LoginRequiredMixin,DetailView):
@@ -91,7 +93,7 @@ class CustomLoginView(LoginView):
     template_name               = "torneos/login.html"
     fields                      = '__all__'
     redirect_authenticated_user = True
-
+    
     def get_success_url(self):
         return reverse_lazy('home')
 
@@ -974,30 +976,29 @@ def actualizaResultados(torneo):
         penca = Penca.objects.get(torneo=torneo)
         for partido in Partido.objects.filter(torneo=torneo).filter(modif_ranking=True):# recorro los partidos que tienen modif_ranking en true y pertenecen al torneo padre
             for participante in Participante.objects.filter(penca=penca):
-                puntos = 0
                 ganador = 0
                 resultado = 0
                 pasafase = 0
                 terycuar = 0
                 segundo = 0
                 primero = 0
-
-                for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo):
-                    #parti_partido.score_local     = partido.score_local
-                    #parti_partido.score_visitante = partido.score_visitante
-                    #parti_partido.resultado       = partido.resultado
+                print('participante ====>>>>>', participante.usuario)
+                # entra solamente a los partidos que no fueron modificados anteriormente es decir modif_ranking = False
+                for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo).exclude(modif_ranking=True):
                     parti_partido.modif_ranking   = partido.modif_ranking
                     parti_partido.save() 
                     if parti_partido.resultado == partido.resultado:
+                        print('ganador suma')
                         ganador += penca.pts_ganador
                     if parti_partido.score_local == partido.score_local and parti_partido.score_visitante == partido.score_visitante:    
+                        print('resultado suma')
                         resultado += penca.pts_resultado
-
-                participante.puntos         = ganador + resultado + pasafase + terycuar + segundo + primero  
-                participante.pts_ganador    = ganador
-                participante.pts_resultado  = resultado
-                participante.pts_pasafase   = pasafase
-                participante.pts_terycuar   = terycuar
-                participante.pts_segundo    = segundo
-                participante.pts_primero    = primero
+                
+                participante.puntos         += ganador + resultado + pasafase + terycuar + segundo + primero  
+                participante.pts_ganador    += ganador
+                participante.pts_resultado  += resultado
+                participante.pts_pasafase   += pasafase
+                participante.pts_terycuar   += terycuar
+                participante.pts_segundo    += segundo
+                participante.pts_primero    += primero
                 participante.save()        
