@@ -30,10 +30,9 @@ SECRET_KEY = 'django-insecure-fp%7l*@&buj3i52+%naxtzt)*8cdjc861jernwf8kvjcrl)4u)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ 
-    "penca.delebru.com" 
-]
-
+ALLOWED_HOSTS = [ 'penca.delebru.com' ]
+CSRF_COOKIE_DOMAIN = [ 'penca.delebru.com' ]
+CSRF_TRUSTED_ORIGINS = [ 'https://penca.delebru.com' ]
 
 # Application definition
 
