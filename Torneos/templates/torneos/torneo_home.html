@@ -21,7 +21,7 @@
 <div class="tareas_conjunto_items">
     <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Grupos</a> 
     <div class="tareas_conjunto_items" id="section-Fixture" > 
-        {% if partidos %}
+        {% if fixture %}
             {% if torneo.fase == "Pendiente" and Principal %}
                 <div id="buscador_alta">
                     <h2>Partidos</h2>   
@@ -171,8 +171,7 @@
                 {% endfor %}       
             </div>  
         {% else %}
-            <div id="buscador_alta">
-                
+            <div id="buscador_alta">   
                 <a id="add_link" href="{% url 'partidos' torneo.id %}"><h2 style="color:black">Partidos</h2>  </a>     
             </div>
         {% endif %}

@@ -16,7 +16,7 @@
                     <img src="{{partido.visitante.bandera.url}}" style="width:80px;height:80px;">
             </div>
             <div class= "equipos_partido" >
-                {%if partido.modif_ranking %}
+                {%if partido.modif_ranking or hora > partido.fecha and not user.is_staff %}
                     <h2 style="color: #fff;">
                         {{partido.local.nombre}}
                         ( {{partido.score_local}} )
@@ -46,7 +46,8 @@
                     </h2>                
                 {%endif%}
             </div>
-            {%if not partido.modif_ranking %}
+            {%if partido.modif_ranking or hora > partido.fecha and not user.is_staff %}
+            {%else%}
                 <input class="button" type="submit" value="Ingresar">
             {%endif%}
         </form>     

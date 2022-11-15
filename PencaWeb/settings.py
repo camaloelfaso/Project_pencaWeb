@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-fp%7l*@&buj3i52+%naxtzt)*8cdjc861jernwf8kvjcrl)4u)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ 'penca.delebru.com' ]
+ALLOWED_HOSTS = [ 'penca.delebru.com', '127.0.0.1' ]
 CSRF_COOKIE_DOMAIN = [ 'penca.delebru.com' ]
 CSRF_TRUSTED_ORIGINS = [ 'https://penca.delebru.com' ]
 
@@ -113,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE =  'America/Argentina/Buenos_Aires'#'UTC'
 
 USE_I18N = True
 

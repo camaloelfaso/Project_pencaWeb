@@ -11,6 +11,7 @@
 {% block content %}
 
     <div id="buscador_alta">
+        <a class="button" id="add_link" href="{% url 'clasificados' torneo %}" style="font-size: 14px;">Clasificados</a>
         <a class="button" id="add_link" href="{% url 'genera_fixture' torneo %}" style="font-size: 14px;">Crear fixture general</a>
         <a class="button" id="add_link" href="{% url 'partido_alta' torneo %}" style="font-size: 14px;">Partido nuevo</a>        
     </div>        

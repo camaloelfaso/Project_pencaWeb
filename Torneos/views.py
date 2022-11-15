@@ -1,27 +1,29 @@
 from curses import flash
 from dataclasses import field
+import datetime
 from tkinter import Widget
 from xml.dom import ValidationErr
+
 from django import forms
-from django.forms import ModelForm, Form
-from django.urls import reverse_lazy
-
-from django.http.response import HttpResponseRedirect, HttpResponse
-
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import CreateView, UpdateView, DeleteView, FormView, DetailView,TemplateView
-from django.views.generic.list import ListView
-
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.forms import Form, ModelForm
+from django.http.response import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import (CreateView, DeleteView, DetailView, FormView,
+                                  TemplateView, UpdateView)
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.list import ListView
 
-
-from .models import Equipo, Participante,Partido,Clasificado, Penca,Torneo, Grupo, User
-from .forms import Clasificado_form, ClasificadoUPD_form, Equipo_form, ParticipanteAlta_form, ParticipanteUpd_form, Partido_Form, ListaPartido_form, PartidoUpd_Form, Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form, Fixture_form
-
+from .forms import (Clasificado_form, ClasificadoUPD_form, Equipo_form,
+                    Fixture_form, ListaPartido_form, ParticipanteAlta_form,
+                    ParticipanteUpd_form, Partido_Form, PartidoUpd_Form,
+                    Penca_form, PencaConfig_form, PencaUpd_form, Torneo_Form)
+from .models import (Clasificado, Equipo, Grupo, Participante, Partido, Penca,
+                     Torneo, User)
 
 
 ############################################################## HOMES
@@ -80,7 +82,7 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
         actualiza_rankingEquipos(self.object)
         Playoff_asigna_equipos(self.object)
         context['equipos_grupo'] = Arma_Grupos(self.object)
-        context['partidos']      = torneo_fixture(self.object)
+       # context['partidos']      = torneo_fixture(self.object)
         context['fixture']       = torneo_fixture(self.object)
         context['Principal']     = False
         if context['torneo'].torneoPadre is None:
@@ -472,6 +474,7 @@ class UpdPartido(LoginRequiredMixin, DetailView):
         context['partido']       = self.object
         context['goles_local']   = Partido.objects.get(id=self.kwargs.get('pk')).score_local  
         context['goles_local']   = Partido.objects.get(id=self.kwargs.get('pk')).score_visitante
+        context['hora']          = datetime.datetime.now()
         return context     
 
     def post(self, request, *args, **kwargs): 
@@ -600,6 +603,7 @@ class crea_Clasificados(LoginRequiredMixin, TemplateView):
         #RECORRO LINEAS DEL CVS 
         torneo = Torneo.objects.get(id=self.kwargs.get('pk'))
         for linea in archivo_lineas:
+            
             valor = linea.split(',')
             #busco que exista el equipo en equipos, sino existo lo creo.
             if valor[0]:
@@ -607,9 +611,10 @@ class crea_Clasificados(LoginRequiredMixin, TemplateView):
                     Equipo.objects.create(nombre=valor[0],bandera="")                 
                 equipo = Equipo.objects.get(nombre=valor[0])
             if valor[1]:
-                if not Grupo.objects.filter(toreno=torneo).filter(nombre=valor[1]):
-                    Grupo.objects.create(toreno=torneo,nombre=valor[1])
-                grupo = Grupo.objects.filter(toreno=torneo).get(nombre=valor[1])            
+                nombre = valor[1].split('\r')
+                if not Grupo.objects.filter(toreno=torneo).filter(nombre=nombre[0]):
+                    Grupo.objects.create(toreno=torneo,nombre=nombre[0])
+                grupo = Grupo.objects.filter(toreno=torneo).get(nombre=nombre[0])            
             Clasificado.objects.update_or_create(torneo=torneo,equipo=equipo,grupo=grupo)
             
         return HttpResponseRedirect (reverse_lazy('clasificados', kwargs={'torneo_id': kwargs['pk']})     )
@@ -639,7 +644,8 @@ def Alta_fixture(torneo):
             grupo_equipos.pop(0)
         for clasificado in grupo[x]:
             for equipo in grupo_equipos:
-                codigo  = clasificado.grupo.nombre + "_" + str(int(contador))
+                clasi = clasificado.grupo.nombre.split("\r")
+                codigo  = clasi[0] + "_" + str(int(contador))
                 if contador // 2:
                     local     = clasificado.equipo
                     visitante = equipo.equipo
@@ -798,10 +804,9 @@ def torneo_fixture(torneo):
     #cargo encuentros fase grupos
     for grupo in Grupo.objects.filter(toreno=torneo):
         partidos_grupo.append(grupo.nombre)
-        
-        for partido in Partido.objects.filter(torneo=torneo):
+        for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=grupo.nombre):
             etapa = partido.codigo.split('_',1) 
-            if etapa[0] == grupo.nombre:            
+            if etapa[0] == grupo.nombre:        
                 partidos_grupo.append(partido)
         if len(partidos_grupo)>1:        
             partidos.append(partidos_grupo)
@@ -982,16 +987,13 @@ def actualizaResultados(torneo):
                 terycuar = 0
                 segundo = 0
                 primero = 0
-                print('participante ====>>>>>', participante.usuario)
                 # entra solamente a los partidos que no fueron modificados anteriormente es decir modif_ranking = False
                 for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo).exclude(modif_ranking=True):
                     parti_partido.modif_ranking   = partido.modif_ranking
                     parti_partido.save() 
                     if parti_partido.resultado == partido.resultado:
-                        print('ganador suma')
                         ganador += penca.pts_ganador
                     if parti_partido.score_local == partido.score_local and parti_partido.score_visitante == partido.score_visitante:    
-                        print('resultado suma')
                         resultado += penca.pts_resultado
                 
                 participante.puntos         += ganador + resultado + pasafase + terycuar + segundo + primero  

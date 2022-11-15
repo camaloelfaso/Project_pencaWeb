@@ -115,7 +115,7 @@ class Partido(models.Model):
     modif_ranking   = models.BooleanField(default=False)       
    
     class Meta:
-        ordering = ['fecha', 'torneo']
+        ordering = ['torneo']
 
    
 
