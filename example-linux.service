@@ -1,0 +1,13 @@
+[Unit]
+Description=Penca Web App
+
+[Service]
+WorkingDirectory=/opt/littlespigs
+ExecStart=/usr/local/bin/gunicorn -c /opt/littlespigs/config/gunicorn/PencaWeb.py
+Restart=always
+User=ubuntu
+Group=ubuntu
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
