@@ -183,7 +183,7 @@ class AltaPenca(LoginRequiredMixin, CreateView):
     model           = Penca
     form_class      = Penca_form
    
-    template_name   = "torneos/ABM_Pencas/penca_alta.html"
+    template_name   = "torneos/ABM_pencas/penca_alta.html"
     success_url     = reverse_lazy('home')
 
     def get_initial(self):
@@ -203,7 +203,7 @@ class UpdPenca(LoginRequiredMixin, UpdateView):
     model           = Penca
     form_class      = PencaUpd_form
     
-    template_name   = "torneos/ABM_Pencas/penca_alta.html"
+    template_name   = "torneos/ABM_pencas/penca_alta.html"
     success_url     = reverse_lazy('home')
     
 
@@ -219,7 +219,7 @@ class UpdPenca(LoginRequiredMixin, UpdateView):
 class DltPenca(LoginRequiredMixin, DeleteView):
     model           = Penca
     
-    template_name   = "torneos/ABM_Pencas/penca_baja.html"
+    template_name   = "torneos/ABM_pencas/penca_baja.html"
     success_url     = reverse_lazy('equipos')
 
 class PencaConfig(LoginRequiredMixin,DetailView):
