@@ -63,9 +63,9 @@ class PencaHome(LoginRequiredMixin,DetailView):
 
 class TorneoDetalle(LoginRequiredMixin,DetailView):
 
-    model = Torneo
+    model               = Torneo
     context_object_name = 'torneo'
-    template_name = "torneos/torneo_home.html"
+    template_name       = "torneos/torneo_home.html"
 
     def get_initial(self):
         initial = super(TorneoDetalle, self).get_initial()
@@ -978,29 +978,30 @@ def clonaTorneo(torneo_hijo, torneo):
 def actualizaResultados(torneo):
     if torneo.torneoPadre is None: # si no tiene padre es torneo principal
         #primero actualizo todos los parti
-        penca = Penca.objects.get(torneo=torneo)
-        for partido in Partido.objects.filter(torneo=torneo).filter(modif_ranking=True):# recorro los partidos que tienen modif_ranking en true y pertenecen al torneo padre
-            for participante in Participante.objects.filter(penca=penca):
-                ganador = 0
-                resultado = 0
-                pasafase = 0
-                terycuar = 0
-                segundo = 0
-                primero = 0
-                # entra solamente a los partidos que no fueron modificados anteriormente es decir modif_ranking = False
-                for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo).exclude(modif_ranking=True):
-                    parti_partido.modif_ranking   = partido.modif_ranking
-                    parti_partido.save() 
-                    if parti_partido.resultado == partido.resultado:
-                        ganador += penca.pts_ganador
-                    if parti_partido.score_local == partido.score_local and parti_partido.score_visitante == partido.score_visitante:    
-                        resultado += penca.pts_resultado
-                
-                participante.puntos         += ganador + resultado + pasafase + terycuar + segundo + primero  
-                participante.pts_ganador    += ganador
-                participante.pts_resultado  += resultado
-                participante.pts_pasafase   += pasafase
-                participante.pts_terycuar   += terycuar
-                participante.pts_segundo    += segundo
-                participante.pts_primero    += primero
-                participante.save()        
+        pencas = Penca.objects.filter(torneo=torneo)
+        for penca in pencas:
+            for partido in Partido.objects.filter(torneo=torneo).filter(modif_ranking=True):# recorro los partidos que tienen modif_ranking en true y pertenecen al torneo padre
+                for participante in Participante.objects.filter(penca=penca):
+                    ganador = 0
+                    resultado = 0
+                    pasafase = 0
+                    terycuar = 0
+                    segundo = 0
+                    primero = 0
+                    # entra solamente a los partidos que no fueron modificados anteriormente es decir modif_ranking = False
+                    for parti_partido in Partido.objects.filter(torneo=participante.torneo_hijo).filter(codigo=partido.codigo).exclude(modif_ranking=True):
+                        parti_partido.modif_ranking   = partido.modif_ranking
+                        parti_partido.save() 
+                        if parti_partido.resultado == partido.resultado:
+                            ganador += penca.pts_ganador
+                        if parti_partido.score_local == partido.score_local and parti_partido.score_visitante == partido.score_visitante:    
+                            resultado += penca.pts_resultado
+                    
+                    participante.puntos         += ganador + resultado + pasafase + terycuar + segundo + primero  
+                    participante.pts_ganador    += ganador
+                    participante.pts_resultado  += resultado
+                    participante.pts_pasafase   += pasafase
+                    participante.pts_terycuar   += terycuar
+                    participante.pts_segundo    += segundo
+                    participante.pts_primero    += primero
+                    participante.save()        
