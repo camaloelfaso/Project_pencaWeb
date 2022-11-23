@@ -22,7 +22,7 @@ $(document).ready(function(){
 	$('#btn-toggle-PencaHome').on('click',function(){
 		$('#penca_sist_puntos').slideToggle();
 		if (estado == true) {
-			$(this).text("Ver sistema de puntuación 4");
+			$(this).text("Ver sistema de puntuación");
             $('#penca_Ranking').slideToggle();
 			$('body').css({
 				"overflow": "auto"

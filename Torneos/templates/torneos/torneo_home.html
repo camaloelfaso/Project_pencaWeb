@@ -265,21 +265,57 @@
                                 {% if forloop.first %}
                                     <div class="tarea_item">
                                         <div class="tarea_titulo">                                            
-                                            <h2>Grupo {{clasificado}}  </h2>
-                                            <p>
-                                                <h6>    Pts  |  PJ  |  PG  |  PE  |  PP  |  GF  |  GC  |  GD</h6>
-                                            </p>        
+                                            <h2>Grupo {{clasificado}}  </h2>    
                                         </div>
                                     </div>        
                                 {%else%}    
                                     <div class="tarea_item">
                                         <div class="tarea_titulo" style="margin-right: 20px;">
-                                            <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;margin-right:30px;"></div>                                        
-                                            <p  style="margin-left:0px">
-                                                {{clasificado.equipo.nombre}}
-                                                {{clasificado.puntos}}  |  {{clasificado.jugados}}  |  {{clasificado.ganados}}  |  {{clasificado.empatados}}  |  
-                                                {{clasificado.perdidos}}  |  {{clasificado.goles_F}}  |  {{clasificado.goles_C}}  |  {{clasificado.goles_D}}   
-                                            </p>        
+                                            <table style="margin-right: 30px;">
+                                                <tr>
+                                                    <td>
+                                                        <div class="bandera_icono"><img src="{{clasificado.equipo.bandera.url}}" style="width:30px;height:30px;margin-right:30px;"></div>   
+                                                    </td> 
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        {{clasificado.equipo.nombre}}
+                                                    </td> 
+                                                </tr>                                                    
+                                            </table>
+                                                                                 
+                                            <table style="align-items: center; margin-left: 50px;">
+                                                <tr>
+                                                    <td></td> 
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>                                            
+                                                    <td> | Pts</td>
+                                                    <td> | PJ</td>
+                                                    <td> | PG</td>
+                                                    <td> | PE</td>
+                                                    <td> | PP</td>
+                                                    <td> | GF</td>
+                                                    <td> | GC</td>
+                                                    <td> | GD</td>
+                                                </tr>
+                                                <tr>
+                                                    
+                                                    <td></td>                                            
+                                                    <td> | {{clasificado.puntos}}</td>
+                                                    <td> | {{clasificado.jugados}}</td>
+                                                    <td> | {{clasificado.ganados}}</td>
+                                                    <td> | {{clasificado.empatados}}</td>                                            
+                                                    <td> | {{clasificado.perdidos}}</td>
+                                                    <td> | {{clasificado.goles_F}}</td>
+                                                    <td> | {{clasificado.goles_C}}</td>                                                    
+                                                    <td> | {{clasificado.goles_D}}</td>                                                    
+                                                </tr>
+                                            </table>
+    
                                         </div>                       
                                     </div>         
                                 {%endif%}

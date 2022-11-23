@@ -87,6 +87,9 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
         context['Principal']     = False
         if context['torneo'].torneoPadre is None:
             context['Principal'] = True
+            context['equipos_grupo'] = Arma_Grupos(self.object)
+        if not context['Principal']:
+            context['equipos_grupo'] = Arma_Grupos(context['torneo'].torneoPadre)    
         return context
 
 ############################################################## USUARIO
