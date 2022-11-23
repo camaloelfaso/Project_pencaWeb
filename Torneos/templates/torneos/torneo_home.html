@@ -48,91 +48,17 @@
                         {%else%}    
                             <div class="tareas_conjunto_items"> 
                                 {%if Principal %}
-                                    <div class="tarea_item">
-                                        <div class="tarea_titulo">
-                                            {%if partido.fecha%}
-                                                {{partido.fecha}}
-                                            {%else%}
-                                                Fijar fecha
-                                            {%endif%}
-                                            {% if partido.local and partido.visitante %}
-                                                <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  
-                                                        {{partido.local.nombre}}
-                                                        ( 
-                                                        {%if partido.score_local is None %}   
-                                                            
-                                                        {%else%}
-                                                            {{partido.score_local}}
-                                                        {%endif%}
-                                                        )
-                                                        VS 
-                                                        ( 
-                                                        {%if partido.score_visitante is None %}   
-                                                            
-                                                        {%else%}
-                                                            {{partido.score_visitante}}
-                                                        {%endif%}
-                                                        ) 
-                                                        {{partido.visitante.nombre}} 
-                                                    </a>
-                                                <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                            {% elif partido.local and not partido.visitante %}
-                                                <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} VS {{partido.codigo}} </a>
-                                            {% elif not partido.local and partido.visitante %}
-                                                <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">{{partido.codigo}} VS {{partido.visitante.nombre}}</a>
-                                                <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                            {% else %}
-                                                <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
-                                            {% endif %}
-                                        </div>
-                                        <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id %}">&#215</a>              
-                                    </div>      
-                                {%else%}
-                                    <div class="tarea_item">
-                                        <div class="tarea_titulo">
-                                            {%if partido.fecha%}
-                                                {{partido.fecha}}
-                                            {%else%}
-                                                Fijar fecha
-                                            {%endif%}
-                                            {%if partido.modif_ranking %}
+                                    {%if partido.modif_ranking %}
+                                        <div class="tarea_itemCompleto">
+                                            <div class="tarea_titulo">
+                                                {%if partido.fecha%}
+                                                    {{partido.fecha}}
+                                                {%else%}
+                                                    Fijar fecha
+                                                {%endif%}
                                                 {% if partido.local and partido.visitante %}
                                                     <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                       
-                                                        {{partido.local.nombre}}
-                                                        ( 
-                                                        {%if partido.score_local is None %}   
-                                                            
-                                                        {%else%}
-                                                            {{partido.score_local}}
-                                                        {%endif%}
-                                                        )
-                                                        VS 
-                                                        ( 
-                                                        {%if partido.score_visitante is None %}   
-                                                            
-                                                        {%else%}
-                                                            {{partido.score_visitante}}
-                                                        {%endif%}
-                                                        ) 
-                                                        {{partido.visitante.nombre}} 
-                                                    
-                                                    <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                {% elif partido.local and not partido.visitante %}
-                                                    <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                    {{partido.local.nombre}} VS {{partido.codigo}} 
-                                                {% elif not partido.local and partido.visitante %}
-                                                    {{partido.codigo}} VS {{partido.visitante.nombre}}
-                                                    <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                {% else %}
-                                                    {{partido.codigo}}
-                                                {% endif %}                                            
-                                            {%else%}
-                                                {% if partido.local and partido.visitante %}
-                                                    <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
-                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> 
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  
                                                             {{partido.local.nombre}}
                                                             ( 
                                                             {%if partido.score_local is None %}   
@@ -160,10 +86,163 @@
                                                     <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                 {% else %}
                                                     <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
-                                                {% endif %}                                            
-                                            {%endif%}    
-                                        </div>            
-                                    </div>                                  
+                                                {% endif %}
+                                            </div>
+                                            <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id %}">&#215</a>              
+                                        </div> 
+                                    {%else%}
+                                        <div class="tarea_item">
+                                            <div class="tarea_titulo">
+                                                {%if partido.fecha%}
+                                                    {{partido.fecha}}
+                                                {%else%}
+                                                    Fijar fecha
+                                                {%endif%}
+                                                {% if partido.local and partido.visitante %}
+                                                    <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  
+                                                            {{partido.local.nombre}}
+                                                            ( 
+                                                            {%if partido.score_local is None %}   
+                                                                
+                                                            {%else%}
+                                                                {{partido.score_local}}
+                                                            {%endif%}
+                                                            )
+                                                            VS 
+                                                            ( 
+                                                            {%if partido.score_visitante is None %}   
+                                                                
+                                                            {%else%}
+                                                                {{partido.score_visitante}}
+                                                            {%endif%}
+                                                            ) 
+                                                            {{partido.visitante.nombre}} 
+                                                        </a>
+                                                    <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                {% elif partido.local and not partido.visitante %}
+                                                    <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} VS {{partido.codigo}} </a>
+                                                {% elif not partido.local and partido.visitante %}
+                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">{{partido.codigo}} VS {{partido.visitante.nombre}}</a>
+                                                    <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                {% else %}
+                                                    <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
+                                                {% endif %}
+                                            </div>
+                                            <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id %}">&#215</a>              
+                                        </div> 
+                                    {%endif%}    
+                                {%else%}
+                                    {%if partido.modif_ranking %}           
+                                        <div class="tarea_itemCompleto">
+                                            <div class="tarea_titulo">
+                                                Terminado
+                                                <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                
+                                                {{partido.local.nombre}}
+                                                ( 
+                                                {%if partido.score_local is None %}   
+                                                    
+                                                {%else%}
+                                                    {{partido.score_local}}
+                                                {%endif%}
+                                                )
+                                                VS 
+                                                ( 
+                                                {%if partido.score_visitante is None %}   
+                                                    
+                                                {%else%}
+                                                    {{partido.score_visitante}}
+                                                {%endif%}
+                                                ) 
+                                                {{partido.visitante.nombre}} 
+                                                
+                                                <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                
+                                            </div>
+                                        </div>                                  
+                                    {%else%}
+                                        <div class="tarea_item">
+                                            <div class="tarea_titulo">
+                                                {%if partido.fecha%}
+                                                    {{partido.fecha}}
+                                                {%else%}
+                                                    Fijar fecha
+                                                {%endif%}
+                                                {%if partido.modif_ranking %}
+                                                    <!-- ########################      -->
+                                                    {% if partido.local and partido.visitante %}
+                                                        <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                            
+                                                            {{partido.local.nombre}}
+                                                            ( 
+                                                            {%if partido.score_local is None %}   
+                                                                
+                                                            {%else%}
+                                                                {{partido.score_local}}
+                                                            {%endif%}
+                                                            )
+                                                            VS 
+                                                            ( 
+                                                            {%if partido.score_visitante is None %}   
+                                                                
+                                                            {%else%}
+                                                                {{partido.score_visitante}}
+                                                            {%endif%}
+                                                            ) 
+                                                            {{partido.visitante.nombre}} 
+                                                        
+                                                        <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+
+                                                    {% elif partido.local and not partido.visitante %}
+                                                        <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                        {{partido.local.nombre}} VS {{partido.codigo}} 
+                                                    {% elif not partido.local and partido.visitante %}
+                                                        {{partido.codigo}} VS {{partido.visitante.nombre}}
+                                                        <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                    {% else %}
+                                                        {{partido.codigo}}
+                                                    {% endif %} 
+                                                    <!-- ########################      -->                                           
+                                                {%else%}
+                                                    <!-- ########################      -->
+                                                    {% if partido.local and partido.visitante %}
+                                                        <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                            <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> 
+                                                                {{partido.local.nombre}}
+                                                                ( 
+                                                                {%if partido.score_local is None %}   
+                                                                    
+                                                                {%else%}
+                                                                    {{partido.score_local}}
+                                                                {%endif%}
+                                                                )
+                                                                VS 
+                                                                ( 
+                                                                {%if partido.score_visitante is None %}   
+                                                                    
+                                                                {%else%}
+                                                                    {{partido.score_visitante}}
+                                                                {%endif%}
+                                                                ) 
+                                                                {{partido.visitante.nombre}} 
+                                                            </a>
+                                                        <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                    {% elif partido.local and not partido.visitante %}
+                                                        <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> {{partido.local.nombre}} VS {{partido.codigo}} </a>
+                                                    {% elif not partido.local and partido.visitante %}
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">{{partido.codigo}} VS {{partido.visitante.nombre}}</a>
+                                                        <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                                    {% else %}
+                                                        <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
+                                                    {% endif %}   
+                                                    <!-- ########################      -->                                         
+                                                {%endif%}    
+                                            </div>            
+                                        </div>
+                                    {%endif%}                                      
                                 {%endif%}              
                             </div>
                         {%endif%}

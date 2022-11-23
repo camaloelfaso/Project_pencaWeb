@@ -2,7 +2,8 @@ body{
     background-color: #FAFAFA;
     font-family: 'Nunito', sans-serif;
     font-family: 'Nunito Sans', sans-serif;
-    padding-top: 50px;
+    padding-top: 3.125em;
+    font-size: 16px;
 }
 
 h1,h2,h3,h4,h5,h6{
@@ -21,11 +22,44 @@ a,p{
      box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
 }
 
+.container-header{
+    max-width: 34.375em;
+   
+    margin: auto;
+    background-image: url( ../../static/images/pelotamultinacion.jpeg);
+
+    background-repeat: no-repeat;
+    background-size: contain;
+    -webkit-box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+    box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+}
+
+.div_Partido {
+    padding-top: 1.25em;
+    max-width: 34.375em;
+    margin: 5px;
+    height: 18.75em;
+    background-image: url(../../static/images/fondo_Partido1.jpeg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    -webkit-box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+    box-shadow: 2px 2px 13px -4px rgba(0, 0,0,0.21);
+    text-align: center;
+}
+.div_equipos_partido{
+    text-align: center;
+
+}  
+
+
+
+
+
 .header-bar{
     display: flex;
     justify-content: space-between;
     color: #FFF;
-    padding: 10px;
+    padding: 0.625em;
     border-radius: 5px 5px 0 0;
 
     background: none;
@@ -34,7 +68,7 @@ a,p{
     display: flex;
     justify-content: space-between;
     color: #FFF;
-    padding: 10px;
+    padding: 0.625em;
     border-radius: 5px 5px 0 0;
 
     background:  none;
@@ -49,8 +83,17 @@ a,p{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding: 1.25em;
     background-color: #FFF;
+    border-top: 1px solid rgb(226, 226, 226);
+}
+
+.tarea_itemCompleto{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25em;
+    background-color: #adadad;
     border-top: 1px solid rgb(226, 226, 226);
 }
 
@@ -61,24 +104,24 @@ a,p{
 .tarea_titulo a{
     text-decoration: none;
     color: #4b5156;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 0.625em;
+    margin-right: 0.625em;
     grid-template-columns: auto auto auto;
 }
 
 .tarea_completa_icono{
-    height: 20px;
-    width: 20px;
+    height: 1.25em;
+    width: 1.25em;
     background-color: rgb(105,192,105);
     border-radius: 50%;
 }
 
 .bandera_icono{
-    height: 30px;
-    width: 30px;
+    height: 1.875em;
+    width: 1.875em;
     border-radius: 50%;
-    margin-right: 20px;
-    margin-left: 10px;
+    margin-right: 1.25em;
+    margin-left: 0.625em;
 }
 
 .tarea_incompleta_icono{
@@ -280,3 +323,4 @@ a:hover {
    background:red;
    margin:50px;
    }
+
