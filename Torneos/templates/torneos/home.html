@@ -1,6 +1,7 @@
 {% extends 'torneos/main.html' %}
 
 {% block content %}
+    
     {%if user.is_staff%}
         <div class="tareas_conjunto_items">
             <div class="tarea_item">
@@ -18,11 +19,15 @@
             {% endfor %}   
         </div>
     {%endif%}
-
-
+         
     <div class="tareas_conjunto_items">
+
         <div class="tarea_item">
             <h2>Pencas para jugar</h2>
+        </div>
+        <div class="tarea_titulo" style="background-color: #adadad;">
+            <h3>Actualización:  </h3>
+            <h5>En la sección "Ver Grupos", se ven las posiciones reales de cada grupo. </h5>
         </div>
         {% for participante in participantes %}
             <div class="tarea_item">
