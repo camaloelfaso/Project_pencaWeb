@@ -59,6 +59,11 @@ class PencaHome(LoginRequiredMixin,DetailView):
         for participante in  Participante.objects.filter(penca = self.object).filter(usuario=self.request.user):
             context['torneohijo'] = participante.torneo_hijo
         context['participantes'] = Participante.objects.filter(penca = self.object)
+        fecha  = datetime.date.today() #date.today()
+        print("fecha",fecha)
+
+        manana = fecha + datetime.timedelta(days=1)
+        context['partidos'] = Partido.objects.filter(torneo=self.object.torneo).filter(fecha__range=(fecha,manana))
         return context   
 
 class TorneoDetalle(LoginRequiredMixin,DetailView):

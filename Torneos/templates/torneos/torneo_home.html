@@ -171,7 +171,6 @@
                                                     Fijar fecha
                                                 {%endif%}
                                                 {%if partido.modif_ranking %}
-                                                    <!-- ########################      -->
                                                     {% if partido.local and partido.visitante %}
                                                         <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                             
@@ -203,10 +202,8 @@
                                                         <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                     {% else %}
                                                         {{partido.codigo}}
-                                                    {% endif %} 
-                                                    <!-- ########################      -->                                           
+                                                    {% endif %}                                         
                                                 {%else%}
-                                                    <!-- ########################      -->
                                                     {% if partido.local and partido.visitante %}
                                                         <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                             <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;"> 
@@ -237,8 +234,7 @@
                                                         <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
                                                     {% else %}
                                                         <a href="{% url 'partido_upd' torneo.id partido.id %}" style="margin-left: 10px;">  {{partido.codigo}}</a>
-                                                    {% endif %}   
-                                                    <!-- ########################      -->                                         
+                                                    {% endif %}                                       
                                                 {%endif%}    
                                             </div>            
                                         </div>

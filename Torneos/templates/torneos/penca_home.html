@@ -73,53 +73,91 @@
             </table>   
         </div>
         <div class="tareas_conjunto_items" id="penca_Ranking"> 
-                <div class="tareas_conjunto_items">     
+               
+            <div class="tareas_conjunto_items"> 
+                <div class="tarea_titulo">
+                    <h3>Partidos en las proximas 24 hs. </h3>     
+                </div>
+                
+                {% for partido in partidos %}      
                     <div class="tarea_item">
-                        <div class="tarea_titulo">      
-                            <table >
-                                <tr>
-                                    <td>
-                                        <h2>Ranking de participantes </h2>
-                                    </td>  
-                                    <td></td><td></td><td></td><td></td><td></td>
-                                    <td></td><td></td><td></td><td></td><td></td>    
-                                    <td></td><td></td><td></td><td></td><td></td>
-                                    <td></td><td></td><td></td><td></td><td></td>  
-                                    <td>
-                                        <a href="{% url 'torneo_home' torneohijo.id %}">
-                                            <h4>Fixture torneo  &#x2b; </h4> 
-                                        </a>
-                                    </td>
-                                </tr>                                      
-                            </table>
+                        <div class="tarea_titulo">
+                            {{partido.fecha}}
+                            <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                            
+                            {{partido.local.nombre}}
+                            ( 
+                            {%if partido.score_local is None %}   
+                                
+                            {%else%}
+                                {{partido.score_local}}
+                            {%endif%}
+                            )
+                            VS 
+                            ( 
+                            {%if partido.score_visitante is None %}   
+                                
+                            {%else%}
+                                {{partido.score_visitante}}
+                            {%endif%}
+                            ) 
+                            {{partido.visitante.nombre}} 
+                            
+                            <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                            
                         </div>
-                    </div>    
-                    <div class="tareas_conjunto_items">      
-                        {% for participante in participantes %}      
-                            <div class="tarea_item">
-                                <div class="tarea_titulo" style="align-items: center;">
-                                    
-                                    <table style="align-items: center;">
-                                        <tr>
-                                            <td>{{participante.usuario}}  </td>                                            
-                                            <td> | Pts</td>
-                                            <td> | Resultado</td>
-                                            <td> | Resultado Exacto</td>
-                                        </tr>
-                                        <tr>
+
                                             
-                                            <td></td>                                            
-                                            <td> | {{participante.puntos}}</td>
-                                            <td> | {{participante.pts_ganador}}</td>
-                                            <td> | {{participante.pts_resultado}}</td>
-                                        </tr>
-                                    </table>
-      
-                                </div>                       
-                            </div>         
-                        {% endfor %}   
+                    </div>         
+                {% endfor %}   
+            </div>
+            <div class="tareas_conjunto_items">     
+                <div class="tarea_item">
+                    <div class="tarea_titulo">      
+                        <table >
+                            <tr>
+                                <td>
+                                    <h2>Ranking de participantes </h2>
+                                </td>  
+                                <td></td><td></td><td></td><td></td><td></td>
+                                <td></td><td></td><td></td><td></td><td></td>    
+                                <td></td><td></td><td></td><td></td><td></td>
+                                <td></td><td></td><td></td><td></td><td></td>  
+                                <td>
+                                    <a href="{% url 'torneo_home' torneohijo.id %}">
+                                        <h4>Fixture torneo  &#x2b; </h4> 
+                                    </a>
+                                </td>
+                            </tr>                                      
+                        </table>
                     </div>
-                </div>  
+                </div>    
+                <div class="tareas_conjunto_items">      
+                    {% for participante in participantes %}      
+                        <div class="tarea_item">
+                            <div class="tarea_titulo" style="align-items: center;">
+                                
+                                <table style="align-items: center;">
+                                    <tr>
+                                        <td>{{participante.usuario}}  </td>                                            
+                                        <td> | Pts</td>
+                                        <td> | Resultado</td>
+                                        <td> | Resultado Exacto</td>
+                                    </tr>
+                                    <tr>
+                                        
+                                        <td></td>                                            
+                                        <td> | {{participante.puntos}}</td>
+                                        <td> | {{participante.pts_ganador}}</td>
+                                        <td> | {{participante.pts_resultado}}</td>
+                                    </tr>
+                                </table>
+    
+                            </div>                       
+                        </div>         
+                    {% endfor %}   
+                </div>
+            </div>  
         </div>
     </div>
 {% endblock content %}
