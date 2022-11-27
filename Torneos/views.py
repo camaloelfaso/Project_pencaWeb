@@ -59,9 +59,7 @@ class PencaHome(LoginRequiredMixin,DetailView):
         for participante in  Participante.objects.filter(penca = self.object).filter(usuario=self.request.user):
             context['torneohijo'] = participante.torneo_hijo
         context['participantes'] = Participante.objects.filter(penca = self.object)
-        fecha  = datetime.date.today() #date.today()
-        print("fecha",fecha)
-
+        fecha  = datetime.date.today() 
         manana = fecha + datetime.timedelta(days=1)
         context['partidos'] = Partido.objects.filter(torneo=self.object.torneo).filter(fecha__range=(fecha,manana))
         return context   
@@ -83,18 +81,24 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context                  = super().get_context_data(**kwargs)
         context['torneo']        = self.object
-        actualizaResultados(self.object)
-        actualiza_rankingEquipos(self.object)
-        Playoff_asigna_equipos(self.object)
-        context['equipos_grupo'] = Arma_Grupos(self.object)
-       # context['partidos']      = torneo_fixture(self.object)
-        context['fixture']       = torneo_fixture(self.object)
         context['Principal']     = False
         if context['torneo'].torneoPadre is None:
             context['Principal'] = True
             context['equipos_grupo'] = Arma_Grupos(self.object)
         if not context['Principal']:
-            context['equipos_grupo'] = Arma_Grupos(context['torneo'].torneoPadre)    
+            context['equipos_grupo'] = Arma_Grupos(context['torneo'].torneoPadre)
+        actualizaResultados(self.object)
+        actualiza_rankingEquipos(self.object)
+        Playoff_asigna_equipos(self.object,context['Principal'])
+        context['equipos_grupo'] = Arma_Grupos(self.object)
+        context['fixture']       = torneo_fixture(self.object)
+        manana_aux               = str(datetime.date.today() + datetime.timedelta(days=1)).split("-")
+        manana                   = datetime.datetime(int(manana_aux[0]) ,int(manana_aux[1]) ,int(manana_aux [2]))      
+        fecha_aux                = str(datetime.date.today()).split("-")
+        fecha                    = datetime.datetime(int(fecha_aux[0]) ,int(fecha_aux[1]) ,int(fecha_aux [2]))    
+        context['hoy']           = fecha
+        context['manana']        = manana  
+    
         return context
 
 ############################################################## USUARIO
@@ -744,7 +748,8 @@ def Alta_fixture(torneo):
         else:
             playoff -= 1
         llave_inicio += 1    
-                  
+
+#suma puntos para fase de grupos                  
 def actualiza_rankingEquipos(torneo):
     #desde el torneo, actualizo el ranking de los clasificados, si tienen partidos con resultado diferente a Pendiente.
     if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
@@ -855,7 +860,12 @@ def Arma_Grupos(torneo):
     return lista_grupos
 
 #Busca y arma el Ranking para la fase de gruupos
-def Playoff_asigna_equipos(torneo):
+def Playoff_asigna_equipos(torneo,es_padre):
+    
+    if not es_padre: #actualiza la fase del torneo hijo
+        torneo.fase = torneo.torneoPadre.fase
+        torneo.save()
+
     if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
         # obtengo clasificados por gurpo
         for grupo in Grupo.objects.filter(toreno=torneo):    
@@ -875,13 +885,35 @@ def Playoff_asigna_equipos(torneo):
                     asignados += 1
                     if asignados > torneo.clasificanXgrupo:
                         break
-                    
-        #busco en los playoff 
-        playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
-        while playoff >=0:
+  
+    elif torneo.fase == 'Octavos':
+        #obtengo los clasificados reales a playoff desde el torneo padre y actuatualizo los torneos hijos
+        #esta logica deja afuera la posibilidad de agregar puntaje por acierto a los clasificados a 8vos.
+        codigo = '8_'
+        for partidoOficial in Partido.objects.filter(torneo=torneo.torneoPadre).filter(codigo__icontains=codigo): 
+            if not partidoOficial.modif_ranking:   
+                for partido in Partido.objects.filter(torneo=torneo).filter(codigo=partidoOficial.codigo):    
+                    if partidoOficial.local != partido.local or partidoOficial.visitante != partido.visitante:
+                        partido.local           = partidoOficial.local
+                        partido.score_local     = None
+                        partido.visitante       = partidoOficial.visitante
+                        partido.score_visitante = None
+                        partido.resultado       = 'P'
+                        partido.save()
+ 
+    if torneo.fase == 'Grupos' or torneo.fase == 'Pendiente':
+        torneoEvaluado = torneo
+    else: 
+        torneoEvaluado = torneo   
+        if not es_padre:
+            torneoEvaluado = torneo.torneoPadre
+        
+    #busco en los playoff 
+    playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
+    while playoff >=0:
             codigo_playoff = str(int(playoff))+"_"
             if playoff > 2: #en SEMIFINAL cambia la logica
-                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
+                for partido in Partido.objects.filter(torneo=torneoEvaluado).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
                     codigo_partido = partido.codigo.split(" ",1)     
                     prox_codigo    = codigo_partido[0] + " vs " 
                     encontre = False
@@ -902,7 +934,7 @@ def Playoff_asigna_equipos(torneo):
                                 prox_partido.visitante = partido.visitante    
                             prox_partido.save()    
             if playoff == 2:
-                for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
+                for partido in Partido.objects.filter(torneo=torneoEvaluado).filter(codigo__icontains=codigo_playoff).exclude(resultado='P'):
                     if partido.resultado == 'L':
                         #ganador va a la final
                         codigo_partido = partido.codigo.split(" ",1)     
@@ -963,6 +995,7 @@ def Playoff_asigna_equipos(torneo):
                 playoff = playoff / 2 
             else:
                 playoff -= 1
+   
 
 #configura el torneo hijo, a imagen del padre
 def clonaTorneo(torneo_hijo, torneo):
@@ -982,8 +1015,9 @@ def clonaTorneo(torneo_hijo, torneo):
                                 local=partido.local,visitante=partido.visitante,score_local=partido.score_local,
                                 score_visitante=partido.score_visitante,resultado=partido.resultado,modif_ranking=partido.modif_ranking
                                 )
-  
-def actualizaResultados(torneo):
+
+# suma puntaje de cada participante 
+def actualizaResultados(torneo): 
     if torneo.torneoPadre is None: # si no tiene padre es torneo principal
         #primero actualizo todos los parti
         pencas = Penca.objects.filter(torneo=torneo)

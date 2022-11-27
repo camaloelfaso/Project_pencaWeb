@@ -91,8 +91,13 @@
                                             <a class="link_delete" href="{% url 'partido_dlt' partido.torneo.id partido.id %}">&#215</a>              
                                         </div> 
                                     {%else%}
-                                        <div class="tarea_item">
-                                            <div class="tarea_titulo">
+                                        {%if partido.fecha > hoy and manana > partido.fecha  %}                                  
+                                            <div class="tarea_item" style="background-color: #c8fc9d;">
+                                        {%else%}
+                                            <div class="tarea_item" >        
+                                        {%endif%}
+                                        
+                                            <div class="tarea_titulo" >
                                                 {%if partido.fecha%}
                                                     {{partido.fecha}}
                                                 {%else%}
@@ -163,8 +168,13 @@
                                             </div>
                                         </div>                                  
                                     {%else%}
-                                        <div class="tarea_item">
-                                            <div class="tarea_titulo">
+                                        {%if partido.fecha > hoy and manana > partido.fecha  %}   
+                                                                             
+                                            <div class="tarea_item" style="background-color: #c8fc9d;">
+                                        {%else%}
+                                            <div class="tarea_item" >        
+                                        {%endif%}
+                                            <div class="tarea_titulo" >
                                                 {%if partido.fecha%}
                                                     {{partido.fecha}}
                                                 {%else%}
