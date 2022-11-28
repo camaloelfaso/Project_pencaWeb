@@ -163,7 +163,6 @@
                     {% for participante in participantes %}      
                         <div class="tarea_item">
                             <div class="tarea_titulo" style="align-items: center;">
-                                
                                 <table style="align-items: center;">
                                     <tr>
                                         <td>{{participante.usuario}}  </td>                                            
@@ -179,7 +178,11 @@
                                         <td> | {{participante.pts_resultado}}</td>
                                     </tr>
                                 </table>
-    
+                                {%if request.user != participante.usuario%}
+                                    <a href="{% url 'penca_chusma' penca.id participante.torneo_hijo.pk %}">
+                                        &#8904; Pronosticos
+                                    </a>    
+                                {%endif%}
                             </div>                       
                         </div>         
                     {% endfor %}   

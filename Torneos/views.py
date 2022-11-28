@@ -101,6 +101,39 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
     
         return context
 
+class TorneoDetalleChusma(LoginRequiredMixin,DetailView):
+    model               = Torneo
+    context_object_name = 'penca_chusma'
+    template_name       = "torneos/torneo_homeChusma.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(TorneoDetalleChusma, self).get_form_kwargs()
+        kwargs.update({ 'penca': self.kwargs['penca'], 
+                        'pk': self.kwargs['pk'],
+                           
+                        })           
+        return kwargs
+
+    def get_initial(self):
+        initial = super(TorneoDetalleChusma, self).get_initial()
+        initial.update({ 'pk' : self.kwargs.get('pk'), 'penca' : self.kwargs.get('penca'),} ) 
+        return initial
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=Torneo.objects.all())
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context                  = super().get_context_data(**kwargs)
+        context['penca']         = self.kwargs.get('penca')
+        context['torneo']        = self.object
+        participante = Participante.objects.get(torneo_hijo=self.object)
+        context['usuario'] = participante.usuario
+        context['fixture']       = torneo_fixture(self.object)
+        
+    
+        return context        
+
 ############################################################## USUARIO
 
 class CustomLoginView(LoginView):

@@ -43,6 +43,7 @@ urlpatterns = [
     path('torneo/upd/<int:pk>', UpdTorneo.as_view(), name="torneo_upd"),
     path('torneo/<int:pk>/home', TorneoDetalle.as_view(), name='torneo_home'),
     path('torneo/delete/<int:pk>', DltTorneo.as_view(), name="torneo_dlt"),
+    path('torneo/<int:penca>/chusma/<int:pk>', TorneoDetalleChusma.as_view(), name="penca_chusma"),
 
     path('torneo/<int:pk>/fixture/', crea_Fixture.as_view(), name="genera_fixture"),
     path('torneo/<int:pk>/cargaClasificados/', crea_Clasificados.as_view(), name="carga_clasificados"),

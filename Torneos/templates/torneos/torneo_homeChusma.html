@@ -1,0 +1,74 @@
+{% extends 'torneos/main.html' %}
+{% load static %}
+{% block contentHeader %}
+    <div class="header-bar">
+        <a href="{% url 'penca_home' penca %}">&#8592;Volver</a>
+        <div id="header_links">
+            <h3>{{torneo.torneoPadre.nombre.upper}} - {{usuario}}</h3>  
+        </div>
+    </div>    
+{% endblock contentHeader %}
+
+{% block content %} 
+<div class="tareas_conjunto_items">
+    <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Grupos</a> 
+    <div class="tareas_conjunto_items" id="section-Fixture" > 
+        <div class="tareas_conjunto_items">
+            {% for fase in fixture %} 
+                {% for partido in fase %}    
+                    {% if forloop.first %}
+                        {% if partido == "0" %}
+                            <h2>FINAL </h2>
+                        {%elif partido == "1"%}
+                            <h2>3er y 4to </h2>
+                        {%elif partido == "2"%}
+                            <h2>SEMIFINAL </h2>
+                        {%elif partido == "4"%}
+                            <h2>CUARTOS DE FINAL </h2>
+                        {%elif partido == "8"%}
+                            <h2>OCTAVOS DE FINAL </h2>                                    
+                        {%else%}    
+                            <h2>Grupo {{partido}} </h2>
+                        {% endif %}
+                    {%else%}    
+                        <div class="tareas_conjunto_items"> 
+                            {%if partido.modif_ranking %}           
+                                <div class="tarea_itemCompleto">
+                                    <div class="tarea_titulo">
+                                        Terminado
+                                        <div class="bandera_icono"><img src="{{partido.local.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                        
+                                        {{partido.local.nombre}}
+                                        ( 
+                                        {%if partido.score_local is None %}   
+                                            
+                                        {%else%}
+                                            {{partido.score_local}}
+                                        {%endif%}
+                                        )
+                                        VS 
+                                        ( 
+                                        {%if partido.score_visitante is None %}   
+                                            
+                                        {%else%}
+                                            {{partido.score_visitante}}
+                                        {%endif%}
+                                        ) 
+                                        {{partido.visitante.nombre}} 
+                                        
+                                        <div class="bandera_icono"><img src="{{partido.visitante.bandera.url}}" style="width:30px;height:30px;margin-left: 10px;"></div>
+                                        
+                                    </div>
+                                </div>                                                                     
+                            {%endif%}              
+                        </div>
+                    {%endif%}
+                {%endfor%}        
+            {% endfor %}       
+        </div>  
+    </div>    
+
+</div>
+
+{% endblock content %}
+
