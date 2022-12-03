@@ -127,8 +127,8 @@ class TorneoDetalleChusma(LoginRequiredMixin,DetailView):
         context                  = super().get_context_data(**kwargs)
         context['penca']         = self.kwargs.get('penca')
         context['torneo']        = self.object
-        participante = Participante.objects.get(torneo_hijo=self.object)
-        context['usuario'] = participante.usuario
+        participante             = Participante.objects.get(torneo_hijo=self.object)
+        context['usuario']       = participante.usuario
         context['fixture']       = torneo_fixture(self.object)
         
     
@@ -848,20 +848,42 @@ def torneo_fixture(torneo):
     playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
     x = 0
     #cargo encuentros fase grupos
-    for grupo in Grupo.objects.filter(toreno=torneo):
-        partidos_grupo.append(grupo.nombre)
-        for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=grupo.nombre):
-            etapa = partido.codigo.split('_',1) 
-            if etapa[0] == grupo.nombre:        
-                partidos_grupo.append(partido)
-        if len(partidos_grupo)>1:        
-            partidos.append(partidos_grupo)
-        partidos_grupo = []
-        x += 1
+    if torneo.fase == 'Pendiente' or torneo.fase == 'Grupos':
+        for grupo in Grupo.objects.filter(toreno=torneo):
+            partidos_grupo.append(grupo.nombre)
+            for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=grupo.nombre):
+                etapa = partido.codigo.split('_',1) 
+                if etapa[0] == grupo.nombre:        
+                    partidos_grupo.append(partido)
+            if len(partidos_grupo)>1:        
+                partidos.append(partidos_grupo)
+            partidos_grupo = []
+            x += 1
 
-    #cargo encuentros playoff
-    
-    while playoff >=0:
+    #cargo encuentros playoff 
+    # si se desean cargar todos los playoff de una hay que descomentar esta bloque. 
+    # lo ideal seria agregar una att en la definicion del la penca, donde se defina. como se va a ejecutar
+    # para el mundia qatar 2022 se va sectorizar por fase.
+    """ 
+        while playoff >=0:
+            partidos_grupo.append(str(int(playoff)))
+            for partido in Partido.objects.filter(torneo=torneo):
+                etapa = partido.codigo.split('_',1) 
+                if etapa[0] == str(int(playoff)):            
+                    partidos_grupo.append(partido)
+            if len(partidos_grupo)>1:        
+                partidos.append(partidos_grupo)
+            partidos_grupo = []
+            
+            if playoff > 1:  
+                playoff = playoff / 2 
+            else:
+                playoff -= 1
+        return partidos   
+
+    """
+    if torneo.fase == 'Octavos':
+        playoff = 8
         partidos_grupo.append(str(int(playoff)))
         for partido in Partido.objects.filter(torneo=torneo):
             etapa = partido.codigo.split('_',1) 
@@ -870,11 +892,46 @@ def torneo_fixture(torneo):
         if len(partidos_grupo)>1:        
             partidos.append(partidos_grupo)
         partidos_grupo = []
+    if torneo.fase == 'Cuartos':
+        playoff = 4
+        partidos_grupo.append(str(int(playoff)))
+        for partido in Partido.objects.filter(torneo=torneo):
+            etapa = partido.codigo.split('_',1) 
+            if etapa[0] == str(int(playoff)):            
+                partidos_grupo.append(partido)
+        if len(partidos_grupo)>1:        
+            partidos.append(partidos_grupo)
+        partidos_grupo = []
+    if torneo.fase == 'Semis':
+        playoff = 2
+        partidos_grupo.append(str(int(playoff)))
+        for partido in Partido.objects.filter(torneo=torneo):
+            etapa = partido.codigo.split('_',1) 
+            if etapa[0] == str(int(playoff)):            
+                partidos_grupo.append(partido)
+        if len(partidos_grupo)>1:        
+            partidos.append(partidos_grupo)
+        partidos_grupo = []
+    if torneo.fase == '3er y 4to' or torneo.fase == 'Final':
+        playoff = 1
+        while playoff >=0:
+            partidos_grupo.append(str(int(playoff)))
+            for partido in Partido.objects.filter(torneo=torneo):
+                etapa = partido.codigo.split('_',1) 
+                if etapa[0] == str(int(playoff)):            
+                    partidos_grupo.append(partido)
+            if len(partidos_grupo)>1:        
+                partidos.append(partidos_grupo)
+            partidos_grupo = []
+            
+            if playoff > 1:  
+                playoff = playoff / 2 
+            else:
+                playoff -= 1
+
+
+
         
-        if playoff > 1:  
-            playoff = playoff / 2 
-        else:
-            playoff -= 1
     return partidos   
 
 #busca grupos en los que hay equipos clasificados, si en algun grupo no hay equipos no lo muestra.
