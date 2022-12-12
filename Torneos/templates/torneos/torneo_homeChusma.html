@@ -13,6 +13,21 @@
 <div class="tareas_conjunto_items">
     <a href="#" id="btn-toggle-fixture" class="btn-toggle">Ver Grupos</a> 
     <div class="tareas_conjunto_items" id="section-Fixture" > 
+        <div id="buscador_alta">
+            <form method="GET" style="margin-top: 20px;display: flex;">
+                <label for="cars">Fase torneo:</label>
+                <select name="objeto_buscado" >
+                    <option value="Todas">Todas</option>
+                    <option value="Grupos">Grupos</option>
+                    <option value="Octavos">Octavos</option>
+                    <option value="Cuartos">Cuartos</option>
+                    <option value="Semis">Semis</option>
+                    <option value="3er y 4to">3er y 4to</option>
+                    <option value="Final">Final</option>
+                </select>
+                <input class="button" type="submit" value="Buscar" >
+            </form>   
+        </div>
         <div class="tareas_conjunto_items">
             {% for fase in fixture %} 
                 {% for partido in fase %}    

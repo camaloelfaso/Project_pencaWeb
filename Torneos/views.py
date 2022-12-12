@@ -91,7 +91,12 @@ class TorneoDetalle(LoginRequiredMixin,DetailView):
         actualiza_rankingEquipos(self.object)
         Playoff_asigna_equipos(self.object,context['Principal'])
         context['equipos_grupo'] = Arma_Grupos(self.object)
-        context['fixture']       = torneo_fixture(self.object)
+        context['fixture']       = torneo_fixture(self.object,self.object.fase)
+        search_input = self.request.GET.get('objeto_buscado') or ''
+        if search_input:
+            context['fixture']       = torneo_fixture(self.object,search_input)
+        context['search_input']  = search_input
+       
         manana_aux               = str(datetime.date.today() + datetime.timedelta(days=1)).split("-")
         manana                   = datetime.datetime(int(manana_aux[0]) ,int(manana_aux[1]) ,int(manana_aux [2]))      
         fecha_aux                = str(datetime.date.today()).split("-")
@@ -129,8 +134,12 @@ class TorneoDetalleChusma(LoginRequiredMixin,DetailView):
         context['torneo']        = self.object
         participante             = Participante.objects.get(torneo_hijo=self.object)
         context['usuario']       = participante.usuario
-        context['fixture']       = torneo_fixture(self.object)
-        
+        context['fixture']       = torneo_fixture(self.object,self.object.fase)
+        search_input = self.request.GET.get('objeto_buscado') or ''
+        if search_input:
+            context['fixture']       = torneo_fixture(self.object,search_input)
+        context['search_input']  = search_input
+
     
         return context        
 
@@ -842,13 +851,14 @@ def actualiza_rankingEquipos(torneo):
                 clasificado.save()
 
 #Busca y ordena los partidos segun las faces del torneo
-def torneo_fixture(torneo):
+def torneo_fixture(torneo,fase):
+    print("torneo_fixture =====>>>> ", fase)
     partidos = [] 
     partidos_grupo = []
     playoff = (torneo.clasificanXgrupo * torneo.grupos) / 2
     x = 0
     #cargo encuentros fase grupos
-    if torneo.fase == 'Pendiente' or torneo.fase == 'Grupos':
+    if fase == 'Pendiente' or fase == 'Grupos':
         for grupo in Grupo.objects.filter(toreno=torneo):
             partidos_grupo.append(grupo.nombre)
             for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=grupo.nombre):
@@ -864,7 +874,18 @@ def torneo_fixture(torneo):
     # si se desean cargar todos los playoff de una hay que descomentar esta bloque. 
     # lo ideal seria agregar una att en la definicion del la penca, donde se defina. como se va a ejecutar
     # para el mundia qatar 2022 se va sectorizar por fase.
-    """ 
+    if fase == 'Todas':
+        for grupo in Grupo.objects.filter(toreno=torneo):
+            partidos_grupo.append(grupo.nombre)
+            for partido in Partido.objects.filter(torneo=torneo).filter(codigo__icontains=grupo.nombre):
+                etapa = partido.codigo.split('_',1) 
+                if etapa[0] == grupo.nombre:        
+                    partidos_grupo.append(partido)
+            if len(partidos_grupo)>1:        
+                partidos.append(partidos_grupo)
+            partidos_grupo = []
+            x += 1
+    
         while playoff >=0:
             partidos_grupo.append(str(int(playoff)))
             for partido in Partido.objects.filter(torneo=torneo):
@@ -879,10 +900,8 @@ def torneo_fixture(torneo):
                 playoff = playoff / 2 
             else:
                 playoff -= 1
-        return partidos   
-
-    """
-    if torneo.fase == 'Octavos':
+ 
+    if fase == 'Octavos':
         playoff = 8
         partidos_grupo.append(str(int(playoff)))
         for partido in Partido.objects.filter(torneo=torneo):
@@ -892,7 +911,7 @@ def torneo_fixture(torneo):
         if len(partidos_grupo)>1:        
             partidos.append(partidos_grupo)
         partidos_grupo = []
-    if torneo.fase == 'Cuartos':
+    if fase == 'Cuartos':
         playoff = 4
         partidos_grupo.append(str(int(playoff)))
         for partido in Partido.objects.filter(torneo=torneo):
@@ -902,7 +921,7 @@ def torneo_fixture(torneo):
         if len(partidos_grupo)>1:        
             partidos.append(partidos_grupo)
         partidos_grupo = []
-    if torneo.fase == 'Semis':
+    if fase == 'Semis':
         playoff = 2
         partidos_grupo.append(str(int(playoff)))
         for partido in Partido.objects.filter(torneo=torneo):
@@ -912,7 +931,7 @@ def torneo_fixture(torneo):
         if len(partidos_grupo)>1:        
             partidos.append(partidos_grupo)
         partidos_grupo = []
-    if torneo.fase == '3er y 4to' or torneo.fase == 'Final':
+    if fase == '3er y 4to' or fase == 'Final':
         playoff = 1
         while playoff >=0:
             partidos_grupo.append(str(int(playoff)))

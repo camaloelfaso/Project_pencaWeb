@@ -25,8 +25,38 @@
             {% if torneo.fase == "Pendiente" and Principal %}
                 <div id="buscador_alta">
                     <h2>Partidos</h2>   
-                    <a id="add_link" href="{% url 'partido_alta' torneo.id %}">&#x2b;</a>     
+                    <a id="add_link" href="{% url 'partido_alta' torneo.id %}">&#x2b;</a>  
+                    <form method="GET" style="margin-top: 20px;display: flex;">
+                        <label for="cars">Fase torneo:</label>
+                        <select name="objeto_buscado" >
+                            <option value="Todas">Todas</option>
+                            <option value="Grupos">Grupos</option>
+                            <option value="Octavos">Octavos</option>
+                            <option value="Cuartos">Cuartos</option>
+                            <option value="Semis">Semis</option>
+                            <option value="3er y 4to">3er y 4to</option>
+                            <option value="Final">Final</option>
+                        </select>
+                        <input class="button" type="submit" value="Buscar">
+                    </form>   
                 </div>
+            {%else%}
+                <div id="buscador_alta">
+                    <form method="GET" style="margin-top: 20px;display: flex;">
+                        <label for="cars">Fase torneo:</label>
+                        <select name="objeto_buscado" >
+                            <option value="Todas">Todas</option>
+                            <option value="Grupos">Grupos</option>
+                            <option value="Octavos">Octavos</option>
+                            <option value="Cuartos">Cuartos</option>
+                            <option value="Semis">Semis</option>
+                            <option value="3er y 4to">3er y 4to</option>
+                            <option value="Final">Final</option>
+                        </select>
+                        <input class="button" type="submit" value="Buscar" >
+                    </form>   
+                </div>
+
             {% endif %}  
             <div class="tareas_conjunto_items">
                 {% for fase in fixture %} 
